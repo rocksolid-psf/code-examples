@@ -1,0 +1,67 @@
+/*
+ * jquery-filestyle
+ * http://dev.tudosobreweb.com.br/jquery-filestyle/
+ *
+ * Copyright (c) 2013 Markus Vinicius da Silva Lima
+ * Version 0.1.3
+ * Licensed under the MIT license.
+ */
+.jquery-filestyle {
+  display: inline-block;
+  *display: inline;
+  /* IE7 inline-block hack */
+
+  *zoom: 1;
+  margin: 0 0 10px;
+  padding: 0;
+}
+
+
+div.jquery-filestyle label,
+div.jquery-filestyle input[type=text][disabled] {
+	font-family: sans-serif;
+}
+
+div.jquery-filestyle input[type=text][disabled] {
+	display: block;
+  border: 1px solid #d7d9db;
+  padding: 0;
+  /*background: url(../../img/bg_btn_grey.png) 0 0 repeat-x;*/
+  font-size: 15px;
+  line-height: 35px;
+  color: #000;
+  text-decoration: none;
+  text-align: center;
+  -webkit-border-radius: 3px;
+     -moz-border-radius: 3px;
+          border-radius: 3px;
+  -webkit-box-shadow: 0 1px 3px rgba(#000, 0.17);
+     -moz-box-shadow: 0 1px 3px rgba(#000, 0.17);
+          box-shadow: 0 1px 3px rgba(#000, 0.17);
+}
+
+div.jquery-filestyle label {
+  display: inline-block;
+  *display: inline;
+  /* IE7 inline-block hack */
+
+  *zoom: 1;
+  border: 1px solid #d7d9db;
+  padding: 0;
+  /*background: url(../../img/bg_btn_grey.png) 0 0 repeat-x;*/
+  line-height: 35px;
+  color: #000;
+  text-decoration: none;
+  text-align: center;
+  -webkit-border-radius: 3px;
+     -moz-border-radius: 3px;
+          border-radius: 3px;
+  -webkit-box-shadow: 0 1px 3px rgba(#000, 0.17);
+     -moz-box-shadow: 0 1px 3px rgba(#000, 0.17);
+          box-shadow: 0 1px 3px rgba(#000, 0.17);
+}
+
+div.jquery-filestyle label:hover {
+	/*background: #f4f4f4;*/
+	cursor: pointer;
+}

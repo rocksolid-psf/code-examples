@@ -1,0 +1,3160 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function allrise_create_loan_menu() {
+
+  $items['create-loan'] = array(
+    'title' => t('Create loan'),
+    'page callback' => 'create_loan_callback',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['loan-shedule'] = array(
+    'title' => t('Loan shedule'),
+    'page callback' => 'create_loan_shedule_callback',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['loan-create-get-parameters'] = array(
+    'page callback' => 'loan_create_page_post_content',
+    'title' => t("loan create get params"),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['create-loan-new-user'] = array(
+    'page callback' => 'create_loan_new_user_content',
+    'title' => t("Create loan and new user"),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['loan-attached-file/nojs/%/%'] = array(
+    'title' => '',
+    'page callback' => 'delete_attached_lfile_callback',
+    'page arguments' => array(1, 2, 3),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['loan-attached-file/ajax/%/%'] = array(
+    'delivery callback' => 'ajax_deliver',
+  ) + $items['loan-attached-file/nojs/%/%'];
+
+  $items['create-loan-and-user/nojs/%'] = array(
+    'title' => '',
+    'page callback' => 'allrise_create_borrower_steps_content',
+    'page arguments' => array(1, 2),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['create-loan-and-user/ajax/%'] = array(
+    'delivery callback' => 'ajax_deliver',
+  ) + $items['create-loan-and-user/nojs/%'];
+
+  return $items;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function allrise_create_loan_theme($existing, $type, $theme, $path) {
+  $path = drupal_get_path('module', 'allrise_create_loan') . '/templates';
+
+  return array(
+
+    'left_bar_loanlist_theme' => array(
+      'variables' => array('items' => NULL),
+      'template' => 'left-bar-loanlist-theme',
+      'path' => $path,
+    ),
+
+    'allrise_create_loan_form' => array(
+      'render element' => 'form',
+      'template' => 'create-loans-form-theme',
+      'path' => $path,
+    ),
+
+    'loan_car_parameters_form' => array(
+      'render element' => 'form',
+      'template' => 'car-parameters-form-theme',
+      'path' => $path,
+    ),
+
+    'loan_car_data_form' => array(
+      'render element' => 'form',
+      'template' => 'car-data-form-theme',
+      'path' => $path,
+    ),
+
+    'create_borrower_first_step_form' => array(
+      'render element' => 'form',
+      'template' => 'borrower-create-step1-form-theme',
+      'path' => $path,
+    ),
+
+    'create_borrower_first_step_legal_form' => array(
+      'render element' => 'form',
+      'template' => 'borrower-create-step1-form-legal-theme',
+      'path' => $path,
+    ),
+
+    'create_borrower_second_step_form' => array(
+      'render element' => 'form',
+      'template' => 'borrower-create-step2-form-theme',
+      'path' => $path,
+    ),
+
+    'annuity_shedule' => array(
+      'variables' => array('items' => NULL),
+      'template' => 'shedule-annuity-theme',
+      'path' => $path,
+    ),
+
+    'differentiated_shedule' => array(
+      'variables' => array('items' => NULL),
+      'template' => 'shedule-differentiated-theme',
+      'path' => $path,
+    ),
+
+    'differentiated_graph_theme' => array(
+      'variables' => array('items' => NULL),
+      'template' => 'differentiated-graph-theme',
+      'path' => $path,
+    ),
+
+    'annuity_graph_theme' => array(
+      'variables' => array('items' => NULL),
+      'template' => 'annuity-graph-theme',
+      'path' => $path,
+    ),
+
+  );
+}
+
+function create_loan_callback(){
+  allrise_personal_check_user_role(); /*redirect anonymous to login page*/
+	global $user;
+	global $language;
+
+  drupal_add_css(drupal_get_path('module', 'allrise_create_loan') . '/css/style.css');
+  drupal_add_css(drupal_get_path('module', 'allrise_create_loan') . '/css/vendors/jquery-ui/jquery-ui.min.css');
+  drupal_add_css(drupal_get_path('module', 'allrise_create_loan') . '/css/addonce/onepage-scroll.css');
+  drupal_add_css(drupal_get_path('module', 'allrise_create_loan') . '/css/addonce/jquery.fs.selecter.css');
+  drupal_add_css(drupal_get_path('module', 'allrise_create_loan') . '/css/addonce/jquery-filestyle.css');
+  drupal_add_css(drupal_get_path('module', 'allrise_create_loan') . '/css/addonce/jquery.mmenu.all.css');
+
+  drupal_add_js(drupal_get_path('module','allrise_application') . '/js/allrise-application.js');
+  drupal_add_js(drupal_get_path('module','allrise_create_loan') .'/js/modernizr/modernizr.js');
+  drupal_add_js(drupal_get_path('module','allrise_create_loan') .'/js/jquery/jquery-ui.min.js');
+  drupal_add_js(drupal_get_path('module','allrise_create_loan') .'/js/jquery/ui.datepicker-ru.js');
+  drupal_add_js(drupal_get_path('module','allrise_create_loan') .'/js/selecter/jquery.fs.selecter.min.js');
+  drupal_add_js(drupal_get_path('module','allrise_create_loan') .'/js/uniform/jquery.uniform.min.js');
+  drupal_add_js(drupal_get_path('module','allrise_create_loan') .'/js/flexslider/jquery.flexslider-min.js');
+  drupal_add_js(drupal_get_path('module','allrise_create_loan') .'/js/filestyle/jquery-filestyle.min.js');
+  drupal_add_js(drupal_get_path('module','allrise_create_loan') .'/js/nanoscroller/jquery.nanoscroller.js');
+  drupal_add_js(drupal_get_path('module','allrise_create_loan') . '/js/mmenu/jquery.mmenu.min.js');
+  drupal_add_js(drupal_get_path('module','allrise_create_loan') . '/js/main.js');
+  drupal_add_js(drupal_get_path('module','allrise_create_loan') . '/js/create-loan.js');
+  drupal_add_js(drupal_get_path('module','allrise_create_loan') .'/js/validation.js');
+
+
+	return t('');
+}
+
+function create_loan_shedule_callback(){
+
+	drupal_add_css(drupal_get_path('module', 'allrise_create_loan') . '/css/style.css');
+  drupal_add_css(drupal_get_path('module', 'allrise_create_loan') . '/css/vendors/jquery-ui/jquery-ui.min.css');
+  drupal_add_css(drupal_get_path('module', 'allrise_create_loan') . '/css/addonce/onepage-scroll.css');
+  drupal_add_css(drupal_get_path('module', 'allrise_create_loan') . '/css/addonce/jquery.fs.selecter.css');
+  drupal_add_css(drupal_get_path('module', 'allrise_create_loan') . '/css/addonce/jquery-filestyle.css');
+  drupal_add_css(drupal_get_path('module', 'allrise_create_loan') . '/css/addonce/jquery.mmenu.all.css');
+
+  drupal_add_js(drupal_get_path('module','allrise_create_loan') .'/js/modernizr/modernizr.js');
+  drupal_add_js(drupal_get_path('module','allrise_create_loan') .'/js/jquery/jquery-ui.min.js');
+  drupal_add_js(drupal_get_path('module','allrise_create_loan') .'/js/jquery/ui.datepicker-ru.js');
+  drupal_add_js(drupal_get_path('module','allrise_create_loan') .'/js/selecter/jquery.fs.selecter.min.js');
+  drupal_add_js(drupal_get_path('module','allrise_create_loan') .'/js/uniform/jquery.uniform.min.js');
+  drupal_add_js(drupal_get_path('module','allrise_create_loan') .'/js/flexslider/jquery.flexslider-min.js');
+  drupal_add_js(drupal_get_path('module','allrise_create_loan') .'/js/filestyle/jquery-filestyle.min.js');
+  drupal_add_js(drupal_get_path('module','allrise_create_loan') .'/js/nanoscroller/jquery.nanoscroller.js');
+  drupal_add_js(drupal_get_path('module','allrise_create_loan') . '/js/mmenu/jquery.mmenu.min.js');
+  drupal_add_js(drupal_get_path('module','allrise_create_loan') . '/js/main.js');
+  drupal_add_js(drupal_get_path('module','allrise_create_loan') . '/js/create-loan.js');
+
+	return 'shedule';
+}
+
+
+/*ajax answer page for loan calculations*/
+function loan_create_page_post_content(){
+	if (!empty($_POST['product_code']) && is_numeric($_POST['product_code']) && !empty($_POST['loan_size']) && is_numeric($_POST['loan_size'])) {
+	  $query = db_select('allrise_loan_banking_product_percantage', 'a');
+		$query->fields('a', array());
+		$query->condition('a.banking_product', $_POST['product_code']);
+		$query->condition('a.min_sum_percantage', $_POST['loan_size'], '<');
+		$query->condition('a.max_sum_percantage', $_POST['loan_size'], '>');
+		$loan_data = $query->execute()->fetchObject();
+		watchdog('POST_create_loan_data', '<pre>'.print_r('1', true)." ".print_r($_POST, true).'</pre>', array(), WATCHDOG_NOTICE, 'link');
+	  $data_percent = $loan_data->loan_percent;
+	  $data_percent_commission = str_replace(',', '.', $loan_data->CommissionPercantage);
+	  $data_sum_commission = $loan_data->CommissionFixedSum;
+
+    if (isset($data_percent) && isset($data_percent_commission) && isset($data_sum_commission)){
+      $data = array($data_percent, $data_percent_commission, $data_sum_commission);
+    }
+    else{
+			$data = array(0, 0, 0);
+    }
+    return drupal_json_output($data);
+  }
+
+  if (!empty($_POST['invest_sum']) && is_numeric($_POST['invest_sum']) && !empty($_POST['loan_term']) && is_numeric($_POST['loan_term']) && !empty($_POST['loan_percent']) && is_numeric($_POST['payout_method']) && !empty($_POST['payout_method'])) {
+    $loan_size = str_replace(",", "", $_POST['invest_sum']);
+    $commision_percent = $_POST['loan_percent'];
+    $loan_term = $_POST['loan_term'];
+    $payout_method = $_POST['payout_method'];
+
+    if (!empty($loan_size) && $loan_size > 0 && !empty($commision_percent) && $commision_percent > 0 && !empty($payout_method) && $payout_method > 0) {
+      $data = array();
+      $data['sum_all'] = '';
+      $data['percents_all'] = '';
+      $data['main_all'] = '';
+      $credit_sum = '';
+      $credit_term = '';
+      $credit_percent = '';
+
+      $credit_type = $payout_method;
+
+      define("credit_sum", 1);
+      $credit_sum = $loan_size;
+      $credit_term = $loan_term;
+      $credit_percent = $commision_percent;
+      $credit_percent = $credit_percent/100/12;
+      $i = 1;
+
+      switch ($credit_type) {
+        //annuity type
+        case '3':
+          $second_param = pow(1+$credit_percent, -$credit_term);
+          $annuity = $credit_sum *($credit_percent / (1-$second_param)); //annuity per month payment
+          $credit = "";
+          $data = array();
+          $data['sum_all'] = '';
+          $data['percents_all'] = '';
+          $data['main_all'] = '';
+          $data['annuity'] = round($annuity,2);
+          $data['annuity_sum'] = round($annuity * $credit_term,2);
+
+          for ($i=1; $i <= $credit_term; $i++) {
+            $sum_money = ($i < 2 ) ? $credit_sum : $credit ;
+            $sum_percentage = $sum_money * $credit_percent;
+            $main_credit = $annuity - $sum_percentage;
+            $credit = $sum_money - $main_credit;
+            $data['table'][$i]['sum'] = round($sum_money,2);
+            $data['sum_all'] += $sum_money;
+            $data['table'][$i]['percents'] = round($sum_percentage,2);
+            $data['percents_all'] += round($sum_percentage,2);
+            $data['table'][$i]['main'] = round($main_credit,2);
+            $data['main_all'] += round($main_credit,2);
+          }
+
+          $all_profit = round($data['main_all']);
+          $data = array(round($data['percents_all']), $all_profit);
+          break;
+
+        //differentiated type
+        case '1':
+          if (!empty($credit_sum)) {
+            $differentiated = $credit_sum / $credit_term;
+          }
+
+
+          for ($i=1; $i <= $credit_term; $i++) {
+
+            $sum_money = ($i < 2 ) ? $credit_sum : $credit ;
+            $sum_percentage = $sum_money * $credit_percent;
+            // $main_credit = $annuity - $sum_percentage;
+            $credit = $sum_money - $differentiated;
+            $data['diff_type'] = 1;
+            $data['table'][$i]['sum'] = round($sum_money,2);
+            $data['sum_all'] += $sum_money;
+            $data['table'][$i]['percents'] = round($sum_percentage,2);
+            $data['percents_all'] += round($sum_percentage,2);
+            $data['table'][$i]['main'] = round($sum_percentage,2) + round($differentiated,2);
+            $data['main_all'] += round($sum_percentage,2) + round($differentiated,2);
+          }
+          $all_profit = round($data['main_all']);
+          $data = array(round($data['percents_all']), $all_profit);
+
+          // $output = t('differentiated type');
+          break;
+
+        //differentiated in the end type
+        case '2':
+          $data['diff_type'] = 2;
+          $month_payment = $credit_sum * $credit_percent;
+          $overall_payment = $month_payment*$credit_term + $credit_sum;
+
+          for ($i=1; $i <= $credit_term; $i++) {
+            $sum_money = ($i ==  $credit_term) ? round($month_payment + $credit_sum,2 )  : $month_payment ;
+            // $sum_percentage = $sum_money * $credit_percent;
+            // $main_credit = $annuity - $sum_percentage;
+            // $credit = $sum_money - $differentiated;
+            // $data['table'][$i]['sum'] = round($sum_money,2);
+            // $data['sum_all'] += $sum_money;
+            $data['table'][$i]['percents'] = round($month_payment,2);
+            $data['percents_all'] = round($month_payment*$credit_term,2);
+            $data['table'][$i]['main'] = round($sum_money,2);
+            $data['main_all'] = round($overall_payment,2);
+          }
+          // $output = theme('differentiated_graph_theme', array('items' => $data));
+          // $output = t('differentiated in the end type');
+          $all_profit = round($data['main_all']);
+          $data = array(round($data['percents_all']), $all_profit);
+          break;
+
+        default:
+          $data = array(0, 0, 0);
+          break;
+      }
+    }
+    else{
+      $data = array(0, 0, 0);
+    }
+    $_POST['invest_sum'] = '';
+    $_POST['loan_term'] = '';
+    $_POST['loan_percent'] = '';
+    $_POST['payout_method'] = '';
+    return drupal_json_output($data);
+    exit();
+  }
+
+  if (!empty($_POST['size_loan']) && is_numeric($_POST['size_loan']) && !empty($_POST['term']) && is_numeric($_POST['term'])  && !empty($_POST['method']) && is_numeric($_POST['method']) && !empty($_POST['percent']) && is_numeric($_POST['percent'])) {
+  	$data = array();
+		$data['sum_all'] = '';
+		$data['percents_all'] = '';
+		$data['main_all'] = '';
+		$credit_sum = '';
+		$credit_term = '';
+		$credit_percent = '';
+		$credit_type = $_POST['method'];
+
+		define("credit_sum", 1);
+		$credit_sum = $_POST['size_loan'];
+		$credit_term = $_POST['term'];
+		$credit_percent = $_POST['percent'];
+		$credit_percent = $credit_percent/100/12;
+		$i = 1;
+
+		switch ($credit_type) {
+			//annuity type
+			case '3':
+				$second_param = pow(1+$credit_percent, -$credit_term);
+				$annuity = $credit_sum *($credit_percent / (1-$second_param)); //annuity per month payment
+				$credit = "";
+				$data = array();
+				$data['sum_all'] = '';
+				$data['percents_all'] = '';
+				$data['main_all'] = '';
+				$data['annuity'] = round($annuity);
+				$data['annuity_sum'] = round($annuity * $credit_term);
+
+				for ($i=1; $i <= $credit_term; $i++) {
+					$sum_money = ($i < 2 ) ? $credit_sum : $credit ;
+					$sum_percentage = $sum_money * $credit_percent;
+					$main_credit = $annuity - $sum_percentage;
+					$credit = $sum_money - $main_credit;
+					$data['table'][$i]['sum'] = round($sum_money);
+					$data['sum_all'] += $sum_money;
+					$data['table'][$i]['percents'] = round($sum_percentage);
+					$data['percents_all'] += round($sum_percentage);
+					$data['table'][$i]['main'] = round($main_credit);
+					$data['main_all'] += round($main_credit);
+				}
+
+				$output = array($data['annuity_sum']);
+				break;
+
+			//differentiated type
+			case '1':
+				if (!empty($credit_sum)) {
+          $differentiated = $credit_sum / $credit_term;
+				}
+
+				for ($i=1; $i <= $credit_term; $i++) {
+					$sum_money = ($i < 2 ) ? $credit_sum : $credit ;
+					$sum_percentage = $sum_money * $credit_percent;
+					$credit = $sum_money - $differentiated;
+					$data['diff_type'] = 1;
+					$data['table'][$i]['sum'] = round($sum_money);
+					$data['sum_all'] += $sum_money;
+					$data['table'][$i]['percents'] = round($sum_percentage);
+					$data['percents_all'] += round($sum_percentage);
+					$data['table'][$i]['main'] = round($sum_percentage) + round($differentiated);
+					$data['main_all'] += round($sum_percentage) + round($differentiated);
+				}
+
+				$output = array($data['main_all']);
+				break;
+
+			//differentiated in the end type
+			case '2':
+				$data['diff_type'] = 2;
+				$month_payment = $credit_sum * $credit_percent;
+				$overall_payment = $month_payment*$credit_term + $credit_sum;
+
+				for ($i=1; $i <= $credit_term; $i++) {
+					$sum_money = ($i ==  $credit_term) ? round($month_payment + $credit_sum,2 )  : $month_payment ;
+					$data['table'][$i]['percents'] = round($month_payment);
+					$data['percents_all'] = round($month_payment*$credit_term);
+					$data['table'][$i]['main'] = round($sum_money);
+					$data['main_all'] = round($overall_payment);
+				}
+				$output = array($data['main_all']);
+				break;
+
+			default:
+				$output = 0;
+				$output = array($output);
+				break;
+		}
+		watchdog('POST_create_loan_data', '<pre>'.print_r('2', true)." ".print_r($_POST, true).'</pre>', array(), WATCHDOG_NOTICE, 'link');
+		return drupal_json_output($output);
+
+  }
+
+}
+
+function create_loan_new_user_content(){
+  global $user;
+  if (!isset($user->roles[1])) {
+    watchdog('user', 'Session closed for %name.', array('%name' => $user->name));
+    module_invoke_all('user_logout', $user);
+
+   // Destroy the current session, and reset $user to the anonymous user.
+    session_destroy();
+  }
+
+	drupal_add_css(drupal_get_path('module', 'allrise_create_loan') . '/css/style.css');
+  drupal_add_css(drupal_get_path('module', 'allrise_create_loan') . '/css/vendors/jquery-ui/jquery-ui.min.css');
+  drupal_add_css(drupal_get_path('module', 'allrise_create_loan') . '/css/addonce/jquery.fs.selecter.css');
+  drupal_add_css(drupal_get_path('module', 'allrise_create_loan') . '/css/addonce/jquery-filestyle.css');
+  drupal_add_css(drupal_get_path('module', 'allrise_create_loan') . '/css/addonce/jquery.mmenu.all.css');
+
+  drupal_add_js(drupal_get_path('module','allrise_create_loan') . '/js/create-loan.js');
+  drupal_add_js(drupal_get_path('module','allrise_application') . '/js/allrise-application.js');
+  drupal_add_js(drupal_get_path('module','allrise_create_loan') .'/js/modernizr/modernizr.js');
+  drupal_add_js(drupal_get_path('module','allrise_create_loan') .'/js/jquery/jquery-ui.min.js');
+  drupal_add_js(drupal_get_path('module','allrise_create_loan') .'/js/jquery/ui.datepicker-ru.js');
+  drupal_add_js(drupal_get_path('module','allrise_create_loan') .'/js/selecter/jquery.fs.selecter.min.js');
+  drupal_add_js(drupal_get_path('module','allrise_create_loan') .'/js/uniform/jquery.uniform.min.js');
+  drupal_add_js(drupal_get_path('module','allrise_create_loan') .'/js/flexslider/jquery.flexslider-min.js');
+  drupal_add_js(drupal_get_path('module','allrise_create_loan') .'/js/filestyle/jquery-filestyle.min.js');
+  drupal_add_js(drupal_get_path('module','allrise_create_loan') . '/js/mmenu/jquery.mmenu.min.js');
+  drupal_add_js(drupal_get_path('module','allrise_create_loan') . '/js/main.js');
+
+  drupal_add_js(drupal_get_path('module','allrise_create_loan') .'/js/validation.js');
+	return t('');
+}
+
+function loan_create_payout_methods(){
+	// //annuity method
+	$data = array();
+	$data['sum_all'] = '';
+	$data['percents_all'] = '';
+	$data['main_all'] = '';
+	$credit_sum = '';
+	$credit_term = '';
+	$credit_percent = '';
+
+	if (is_numeric(arg(1)) && is_numeric(arg(2)) && is_numeric(arg(3)) && is_numeric(arg(4)) ) {
+		$credit_type = arg(1);
+
+		define("credit_sum", 1);
+		$credit_sum = arg(2);
+		$credit_term = arg(3);
+		$credit_percent = arg(4);
+		$credit_percent = $credit_percent/100/12;
+		$i = 1;
+
+		switch ($credit_type) {
+			//annuity type
+			case '3':
+				$second_param = pow(1+$credit_percent, -$credit_term);
+				$annuity = $credit_sum *($credit_percent / (1-$second_param)); //annuity per month payment
+				$credit = "";
+				$data = array();
+				$data['sum_all'] = '';
+				$data['percents_all'] = '';
+				$data['main_all'] = '';
+				$data['annuity'] = round($annuity,2);
+				$data['annuity_sum'] = round($annuity * $credit_term,2);
+
+				for ($i=1; $i <= $credit_term; $i++) {
+					$sum_money = ($i < 2 ) ? $credit_sum : $credit ;
+					$sum_percentage = $sum_money * $credit_percent;
+					$main_credit = $annuity - $sum_percentage;
+					$credit = $sum_money - $main_credit;
+					$data['table'][$i]['sum'] = round($sum_money,2);
+					$data['sum_all'] += $sum_money;
+					$data['table'][$i]['percents'] = round($sum_percentage,2);
+					$data['percents_all'] += round($sum_percentage,2);
+					$data['table'][$i]['main'] = round($main_credit,2);
+					$data['main_all'] += round($main_credit,2);
+				}
+
+				$output = theme('annuity_shedule', array('items' => $data));
+				break;
+
+			//differentiated type
+			case '1':
+				if (!empty($credit_sum)) {
+					$differentiated = $credit_sum / 12 + credit_sum * $credit_percent;
+				}
+
+
+				for ($i=1; $i <= $credit_term; $i++) {
+
+					$sum_money = ($i < 2 ) ? $credit_sum : $credit ;
+					$sum_percentage = $sum_money * $credit_percent;
+					// $main_credit = $annuity - $sum_percentage;
+					$credit = $sum_money - $differentiated;
+					$data['diff_type'] = 1;
+					$data['table'][$i]['sum'] = round($sum_money,2);
+					$data['sum_all'] += $sum_money;
+					$data['table'][$i]['percents'] = round($sum_percentage,2);
+					$data['percents_all'] += round($sum_percentage,2);
+					$data['table'][$i]['main'] = round($sum_percentage,2) + round($differentiated,2);
+					$data['main_all'] += round($sum_percentage,2) + round($differentiated,2);
+				}
+
+				$output = theme('differentiated_shedule', array('items' => $data));
+				break;
+
+			//differentiated in the end type
+			case '2':
+				$data['diff_type'] = 2;
+				$month_payment = $credit_sum * $credit_percent;
+				$overall_payment = $month_payment*$credit_term + $credit_sum;
+
+				for ($i=1; $i <= $credit_term; $i++) {
+					$sum_money = ($i ==  $credit_term) ? round($month_payment + $credit_sum,2 )  : $month_payment ;
+					$data['table'][$i]['percents'] = round($month_payment,2);
+					$data['percents_all'] = round($month_payment*$credit_term,2);
+					$data['table'][$i]['main'] = round($sum_money,2);
+					$data['main_all'] = round($overall_payment,2);
+				}
+				$output = theme('differentiated_shedule', array('items' => $data));
+				// $output = t('differentiated in the end type');
+				break;
+
+			default:
+				$output = t('Wrong data');
+				break;
+		}
+	}
+	else{
+		$output = t('Wrong data');
+	}
+	return $output;
+}
+
+/*helper function. collect data for 1step form's*/
+function loan_create_loan_type_data($type = "NULL", $code = "NULL"){
+	global $language;
+
+	$data = array();
+	$query = db_select('allrise_loan_settings_data', 'l');
+	$query->fields('l', array());
+	$query->condition('l.pledge_type', $type);
+	if (is_numeric($code)) {
+		$query->condition('l.product_code' , $code);
+	}
+	$query->condition('l.language', $language->language);
+	$result = $query->execute()->fetchObject();
+
+	if (!empty($result)) {
+		$data['max_sum'] = $result->max_sum;
+		$data['product_code'] = $result->product_code;
+		$data['min_percent'] = $result->min_percent;
+		$data['max_term'] = $result->max_term;
+		$data['store_place'] = $result->store_place;
+		$data['product_description'] = $result->product_description;
+		$data['detailed_conditions'] = $result->detailed_conditions;
+		$data['borrower_requirements'] = $result->borrower_requirements;
+		$data['LTVMax'] = $result->LTVMax;
+	}
+
+	return $data;
+}
+
+function left_bar_menu(){
+
+	/*menu items after loan*/
+	$left_menu_data = menu_tree_output(menu_tree_all_data('menu-personal-menu-mymoney'));
+	$left_menu_data = array_slice($left_menu_data, 2);
+  unset($left_menu_data[1]);
+	$left_menu_data = drupal_render($left_menu_data);
+	$output = $left_menu_data;
+	return $output;
+}
+
+function borrower_loan_list(){
+	global $user;
+	global $language;
+
+
+	$query = db_select('allrise_loan_application_list', 'a');
+	$query->fields('a', array());
+	$query->condition('a.uid', $user->uid);
+	$query->condition('a.language', $language->language);
+  $query->orderBy('a.date_begin_fill', 'DESC');
+	$result = $query->execute()->fetchAll();
+
+  if (arg(0) == "create-loan") {
+    $data['top_link'] = 0;
+  }
+  else{
+    if (!empty($result)) {
+      $check_access = $result[0]->loan_create_access;
+
+      switch ($check_access) {
+        case '0':
+          $data['top_link'] = 2;
+          break;
+
+        case '1':
+          $data['top_link'] = 1;
+          break;
+
+        default:
+          $data['top_link'] = 2;
+          break;
+      }
+    }
+    else{
+      $data['top_link'] = 1;
+    }
+  }
+
+	if (!empty($result)) {
+		$data['menu_type'] = 0;
+		foreach ($result as $k => $value) {
+			if (arg(0) == "loan-application") {
+				$data['val'][$k]['active_link'] = arg(1);
+			}
+			$data['val'][$k]['loan_reference'] = $value->loan_reference;
+			$data['val'][$k]['loan_sum'] = number_format($value->loan_sum);
+			$data['val'][$k]['loan_status_text'] = $value->loan_status_text;
+			$data['val'][$k]['loan_status'] = $value->loan_status;
+			$data['val'][$k]['loan_message'] = $value->loan_message;
+			$data['val'][$k]['link'] = url('loan-application/'.$value->loan_reference);
+
+			switch ($value->pledge_type) {
+				case '0':
+					$data['val'][$k]['pledge_type'] = "auto";
+					break;
+
+				case '2':
+					$data['val'][$k]['pledge_type'] = "finance";
+					break;
+
+				case '1':
+					$data['val'][$k]['pledge_type'] = "real-estate";
+					break;
+
+				default:
+					$data['val'][$k]['pledge_type'] = "auto";
+					break;
+			}
+
+			switch ($value->loan_status) {
+				case '0':
+					$data['val'][$k]['description_class'] = 'none';
+					break;
+
+				case '1':
+					$data['val'][$k]['description_class'] = 'none';
+					break;
+
+				case '2':
+					$data['val'][$k]['description_class'] = 'cancel';
+					break;
+
+				case '3':
+					$data['val'][$k]['description_class'] = 'none';
+					break;
+
+				case '4':
+					$data['val'][$k]['description_class'] = 'progress';
+					break;
+
+				case '5':
+					$data['val'][$k]['description_class'] = 'none';
+					break;
+
+				case '6':
+					$data['val'][$k]['description_class'] = 'done';
+					break;
+
+				case '7':
+					$data['val'][$k]['description_class'] = 'error';
+					break;
+
+				case '8':
+					$data['val'][$k]['description_class'] = 'none';
+					break;
+
+				case '9':
+					$data['val'][$k]['description_class'] = 'cancel';
+					break;
+
+				case '10':
+					$data['val'][$k]['description_class'] = 'none';
+					break;
+
+				case '11':
+					$data['val'][$k]['description_class'] = 'error';
+					break;
+
+				default:
+					$data['val'][$k]['description_class'] = 'none';
+					break;
+			}
+
+		}
+
+	}
+	else{
+		$data['menu_type'] = 1;
+	}
+	$output = theme('left_bar_loanlist_theme', array('items' => $data));
+
+	return $output;
+}
+
+function allrise_create_loan_form($form, &$form_state) {
+  $form = array();
+    /*check partner program*/
+  if(!empty($_GET['partner_code'])){
+    $_SESSION['partner']['partner_code'] = $_GET['partner_code'];
+  }
+
+
+  $form['#prefix'] = '<div id="allrise-create-loan-wrapper">';
+  $form['#suffix'] = '</div>';
+  $form['#attributes']['class'][] = 'allrise-create-loan-wrapper';
+  global $language;
+  $query = db_select('allrise_loan_settings_data', 'l');
+  $query->fields('l', array('product_code'))->distinct();
+  $query->fields('l', array());
+  $query->condition('l.language', $language->language);
+  $result = $query->execute()->fetchAll();
+
+  if (!empty($result)) {
+
+    foreach ($result as $bp => $bank_product) {
+
+      $form['bproduct'][$bp]['product_title'] = array(
+        '#type' => 'value',
+        '#value' =>  ($bank_product->product_title) ? $bank_product->product_title : 0 ,
+      );
+
+      $form['bproduct'][$bp]['end_sum'] = array(
+        '#type' => 'value',
+        '#value' =>  ($bank_product->max_sum) ? number_format($bank_product->max_sum) : 0 ,
+      );
+
+      $form['bproduct'][$bp]['loan_percent'] = array(
+        '#type' => 'value',
+        '#value' =>  ($bank_product->min_percent) ? $bank_product->min_percent : 0,
+      );
+
+      $form['bproduct'][$bp]['pledge_type'] = array(
+        '#type' => 'value',
+        '#value' =>  ($bank_product->pledge_type) ? $bank_product->pledge_type : 0,
+      );
+
+      $form['bproduct'][$bp]['loan_term'] = array(
+        '#type' => 'value',
+        '#value' =>  ($bank_product->max_term) ? $bank_product->max_term : 0,
+      );
+
+      $form['bproduct'][$bp]['store_place'] = array(
+      '#type' => 'value',
+      '#value' => ($bank_product->store_place) ? $bank_product->store_place : 0,
+      );
+
+      $form['bproduct'][$bp]['product_description'] = array(
+        '#type' => 'value',
+        '#value' => ($bank_product->product_description) ? $bank_product->product_description : 0,
+      );
+
+      $form['bproduct'][$bp]['detailed_conditions'] = array(
+        '#type' => 'value',
+        '#value' => ($bank_product->detailed_conditions) ? $bank_product->detailed_conditions : 0,
+      );
+
+      $form['bproduct'][$bp]['borrower_requirements'] = array(
+        '#type' => 'value',
+        '#value' => ($bank_product->borrower_requirements) ? $bank_product->borrower_requirements : 0,
+      );
+
+      $form['bproduct'][$bp]['submit'] = array(
+        '#type' => 'submit',
+        '#name' => 'bank_product_submit-'. $bp,
+        '#value' => t('Продолжить'),
+        '#bank_product_title' => $bank_product->product_title,
+        '#bank_prod_id' => $bank_product->product_code,
+        '#max_sum_val' => $bank_product->max_sum,
+        '#max_ltv_val' => $bank_product->LTVMax,
+        '#loan_type_id' => $bank_product->pledge_type,
+        '#loan_percent_id' => $bank_product->min_percent,
+        '#attributes' => array('class' => array('form-submit-faq', 'move-up-btn')),
+        '#ajax' => array(
+          'wrapper' => 'allrise-create-loan-wrapper',
+          'callback' => 'allrise_loan_create_ajax_callback',
+          'progress' => array('type' => 'none'),
+          ),
+      );
+    }
+  }
+
+  return $form;
+}
+
+function allrise_loans_create_ajax_callback($form, &$form_state){
+
+  $_SESSION['loan']['bank_product'] = 1; /*auto*/
+  $_SESSION['create_loan']['product_code'] = '001';
+  $output = 'im done';
+  $commands[] = ajax_command_html('#allrise-create-loans-wrapper', $output);
+
+  return array('#type' => 'ajax', '#commands' => $commands);
+}
+
+function allrise_loan_create_ajax_callback($form, &$form_state){
+  $_SESSION['create_loan'] = array();
+  $_SESSION['loan'] = array();
+  $_SESSION['create_loan']['max_sum'] = $form_state['clicked_button']['#max_sum_val'];
+  $_SESSION['create_loan']['LTVMax'] = $form_state['clicked_button']['#max_ltv_val'];
+  $_SESSION['loan']['bank_product'] = $form_state['clicked_button']['#loan_type_id']; /*auto*/
+  $_SESSION['create_loan']['loan_percent_id'] = $form_state['clicked_button']['#loan_percent_id'];
+  $_SESSION['create_loan']['product_code'] = $form_state['clicked_button']['#bank_prod_id'];
+  $_SESSION['create_loan']['bank_product_title'] = $form_state['clicked_button']['#bank_product_title'];
+  $form = drupal_get_form('loan_car_parameters_form');
+  $output = drupal_render($form);
+  $commands[] = ajax_command_html('#allrise-create-loan-wrapper', $output);
+
+  return array('#type' => 'ajax', '#commands' => $commands);
+}
+
+function allrise_loan_create_estate_ajax_callback($form, &$form_state){
+  $_SESSION['loan']['bank_product'] = 2; /*estate*/
+  $_SESSION['create_loan']['product_code'] = '002';
+  $form = drupal_get_form('loan_car_parameters_form');
+  $output = drupal_render($form);
+  $commands[] = ajax_command_html('#allrise-create-loan-wrapper', $output);
+
+  return array('#type' => 'ajax', '#commands' => $commands);
+}
+
+function allrise_loan_create_financial_ajax_callback($form, &$form_state){
+  $_SESSION['loan']['bank_product'] = 3; /*finance*/
+  $_SESSION['create_loan']['product_code'] = '003';
+  $form = drupal_get_form('loan_car_parameters_form');
+  $output = drupal_render($form);
+  $commands[] = ajax_command_html('#allrise-create-loan-wrapper', $output);
+
+  return array('#type' => 'ajax', '#commands' => $commands);
+}
+
+/*second step. loan parameters(CAR)*/
+
+function loan_car_parameters_form($node, &$form_state) {
+
+  $form['#attributes']['class'][] = 'allrise-car-params-loan-wrapper';
+  if (isset($_SESSION['loan']['bank_product'])) {
+    switch ($_SESSION['loan']['bank_product']) {
+      case '2':
+        $form['market_price'] = array(
+          '#type' => 'textfield',
+          '#attributes' => array('class' => array('form-text', 'disabled-input'), 'disabled' => 'disabled','placeholder' => t('Укажите стоимость')),
+        );
+        break;
+
+      default:
+        $form['market_price'] = array(
+          '#type' => 'textfield',
+          '#attributes' => array('class' => array('form-text', 'numeric', 'cfield'), 'placeholder' => t('Укажите стоимость')),
+          // '#value' => "1000 ₽",
+          '#default_value' => isset($_SESSION['create_loan']['market_price']) ? $_SESSION['create_loan']['market_price'] : '',
+        );
+        break;
+    }
+  }
+
+
+  $form['loan_size'] = array(
+    '#type' => 'textfield',
+    '#attributes' => array('class' => array('amount', 'numeric', 'cfield',), 'placeholder' => t('Укажите размер займа')),
+    '#default_value' => isset($_SESSION['create_loan']['loan_size']) ? $_SESSION['create_loan']['loan_size'] : '',
+  );
+
+  $form['loan_term'] = array(
+    '#type' => 'textfield',
+    '#attributes' => array('class' => array('amount','cfield',), 'readonly' => 'readonly'),
+    '#default_value' => isset($_SESSION['create_loan']['loan_term']) ? $_SESSION['create_loan']['loan_term'] : '1',
+  );
+
+  $payout_options = array(
+  	// '3' => t("Аннуитет"),
+  	'1' => t("Тело и проценты, ежемесячно"),
+		'2' => t("Проценты ежемесячно, тело в конце"),
+  );
+
+  $form['payout_method'] = array(
+    '#type' => 'select',
+    // '#attributes' => array('class' => array('selecter')),
+    '#options' => $payout_options,
+    '#default_value' => isset($_SESSION['create_loan']['payout_method']) ? $_SESSION['create_loan']['payout_method'] : 1,
+  );
+
+	$form['max_sum_value'] = array(
+  	'#type' => 'value',
+  	'#value' => (!empty($_SESSION['create_loan']['max_sum'])) ? $_SESSION['create_loan']['max_sum'] : 0,
+  );
+
+  $form['LTVMax'] = array(
+  	'#type' => 'value',
+  	'#value' => (!empty($_SESSION['create_loan']['LTVMax'])) ? round($_SESSION['create_loan']['LTVMax']) : 0,
+  );
+
+  $form['loan_percent_id'] = array(
+    '#type' => 'value',
+    '#value' => (!empty($_SESSION['create_loan']['loan_percent_id'])) ? round($_SESSION['create_loan']['loan_percent_id']) : 0,
+  );
+
+  $form['product_code'] = array(
+  	'#type' => 'value',
+  	'#value' => (!empty($_SESSION['create_loan']['product_code'])) ? $_SESSION['create_loan']['product_code'] : 0,
+  );
+
+  $form['pledge_type'] = array(
+    '#type' => 'value',
+    '#value' => (!empty($_SESSION['loan']['bank_product'])) ? $_SESSION['loan']['bank_product'] : 0,
+  );
+
+  /*collect data for payment graph. step back*/
+  if (!empty($_SESSION['create_loan']['loan_size'])) {
+
+    $query = db_select('allrise_loan_banking_product_percantage', 'a');
+    $query->fields('a', array());
+    $query->condition('a.banking_product', $_SESSION['create_loan']['product_code']);
+    $query->condition('a.min_sum_percantage', $_SESSION['create_loan']['loan_size'], '<');
+    $query->condition('a.max_sum_percantage', $_SESSION['create_loan']['loan_size'], '>');
+    $loan_data = $query->execute()->fetchObject();
+    $data_percent = $loan_data->loan_percent;
+
+  }
+
+  $form['commision_percent'] = array(
+  	'#name' => 'commision_percent',
+  	'#attributes' => array('class' => array('element-invisible')),
+  	'#type' => 'textfield',
+  	'#default_value' => (!empty($data_percent)) ? $data_percent : 0,
+  );
+
+  $form['commision_fixed'] = array(
+  	'#type' => 'value',
+  	'#value' => "0",
+  );
+
+  $form['submit'] = array(
+    '#name' => 'calculation_btn_submit',
+    '#type' => 'submit',
+    '#value' => t('Продолжить'),
+    '#attributes' => array('class' => array('form-submit-faq', 'move-up-btn')),
+    '#ajax' => array(
+      'wrapper' => 'allrise-car-params-loan-wrapper',
+      'callback' => 'allrise_car_params_ajax_callback',
+      'progress' => array('type' => 'none'),
+      ),
+    );
+
+  $form['step_back'] = array(
+  	'#name' => 'step-back-button',
+    '#type' => 'submit',
+    '#value' => t('Back'),
+    '#attributes' => array('class' => array('form-cancel', 'move-up-btn')),
+    '#ajax' => array(
+      'wrapper' => 'allrise-create-loan-wrapper',
+      'callback' => 'allrise_loan_create_back_ajax_callback',
+      'progress' => array('type' => 'none'),
+      ),
+  );
+
+  $form['shedule_graph'] = array(
+  	'#name' => 'shedule_graph',
+    '#type' => 'button',
+    '#value' => t('Payment schedule >>'),
+    '#attributes' => array('class' => array('shedule-graph-calculation')),
+    '#ajax' => array(
+      'wrapper' => 'allrise-create-loan-wrapper',
+      'callback' => '_allrise_shedule_graph_data_callback',
+      'progress' => array('type' => 'none'),
+      'effect' => 'slide',
+      ),
+  );
+
+  return $form;
+}
+
+function _allrise_shedule_graph_data_callback($form, &$form_state){
+
+	$loan_size = str_replace(",", "", $form_state['values']['loan_size']);
+	$commision_percent = $form_state['values']['commision_percent'];
+	$loan_term = explode(" ", $form_state['values']['loan_term']);
+	$payout_method = $form_state['values']['payout_method'];
+
+  if (!empty($loan_size) && $loan_size > 0 && !empty($commision_percent) && $commision_percent > 0 && !empty($payout_method) && $payout_method > 0) {
+  	$data = array();
+		$data['sum_all'] = '';
+		$data['percents_all'] = '';
+		$data['main_all'] = '';
+		$credit_sum = '';
+		$credit_term = '';
+		$credit_percent = '';
+
+		$credit_type = $payout_method;
+		define("credit_sum", 1);
+		$credit_sum = $loan_size;
+		$credit_term = $loan_term[0];
+		$credit_percent = $commision_percent;
+		$credit_percent = $credit_percent/100/12;
+		$i = 1;
+
+		switch ($credit_type) {
+			//annuity type
+			case '3':
+				$second_param = pow(1+$credit_percent, -$credit_term);
+				$annuity = $credit_sum *($credit_percent / (1-$second_param)); //annuity per month payment
+				$credit = "";
+				$data = array();
+				$data['sum_all'] = '';
+				$data['percents_all'] = '';
+				$data['main_all'] = '';
+				$data['annuity'] = round($annuity,2);
+				$data['annuity_sum'] = round($annuity * $credit_term,2);
+
+				for ($i=1; $i <= $credit_term; $i++) {
+					$sum_money = ($i < 2 ) ? $credit_sum : $credit ;
+					$sum_percentage = $sum_money * $credit_percent;
+					$main_credit = $annuity - $sum_percentage;
+					$credit = $sum_money - $main_credit;
+					$data['table'][$i]['sum'] = round($sum_money,2);
+					$data['sum_all'] += $sum_money;
+					$data['table'][$i]['percents'] = round($sum_percentage,2);
+					$data['percents_all'] += round($sum_percentage,2);
+					$data['table'][$i]['main'] = round($main_credit,2);
+					$data['main_all'] += round($main_credit,2);
+				}
+
+				$output = theme('annuity_graph_theme', array('items' => $data));
+				break;
+
+			//differentiated type
+			case '1':
+				if (!empty($credit_sum)) {
+          $differentiated = $credit_sum / $credit_term;
+				}
+
+
+				for ($i=1; $i <= $credit_term; $i++) {
+
+					$sum_money = ($i < 2 ) ? $credit_sum : $credit ;
+					$sum_percentage = $sum_money * $credit_percent;
+					// $main_credit = $annuity - $sum_percentage;
+					$credit = $sum_money - $differentiated;
+					$data['diff_type'] = 1;
+					$data['table'][$i]['sum'] = round($sum_money,2);
+					$data['sum_all'] += $sum_money;
+					$data['table'][$i]['percents'] = round($sum_percentage,2);
+					$data['percents_all'] += round($sum_percentage,2);
+					$data['table'][$i]['main'] = round($sum_percentage,2) + round($differentiated,2);
+					$data['main_all'] += round($sum_percentage,2) + round($differentiated,2);
+				}
+
+				$output = theme('differentiated_graph_theme', array('items' => $data));
+
+				break;
+
+			//differentiated in the end type
+			case '2':
+				$data['diff_type'] = 2;
+				$month_payment = $credit_sum * $credit_percent;
+				$overall_payment = $month_payment*$credit_term + $credit_sum;
+
+				for ($i=1; $i <= $credit_term; $i++) {
+					$sum_money = ($i ==  $credit_term) ? round($month_payment + $credit_sum,2 )  : $month_payment ;
+
+					$data['table'][$i]['percents'] = round($month_payment,2);
+					$data['percents_all'] = round($month_payment*$credit_term,2);
+					$data['table'][$i]['main'] = round($sum_money,2);
+					$data['main_all'] = round($overall_payment,2);
+				}
+				$output = theme('differentiated_graph_theme', array('items' => $data));
+				break;
+
+			default:
+				$output = 0;
+				$output = array($output);
+				break;
+		}
+
+  }
+  else{
+  	$output = "<div>error</div>";
+  }
+
+  $commands[] = ajax_command_html('#shedule-graph-wrapper', $output);
+  return array('#type' => 'ajax', '#commands' => $commands);
+}
+
+function allrise_car_params_ajax_callback($form, &$form_state){
+
+  $market_price = " ";
+  $market_price = explode(" ", $form_state['values']['market_price']);
+  $market_price = str_replace(",", "", $market_price[0]);
+
+  $loan_size = " ";
+  $loan_size = explode(" ", $form_state['values']['loan_size']);
+  $loan_size = str_replace(",", "", $loan_size[0]);
+
+  $loan_term = " ";
+  $loan_term = explode(" ", $form_state['values']['loan_term']);
+  $loan_term = str_replace(",", "", $loan_term[0]);
+
+  $payoyt = $form_state['values']['payout_method'];
+
+	$_SESSION['create_loan']['market_price'] = $market_price;
+	$_SESSION['create_loan']['loan_size'] = $loan_size;
+	$_SESSION['create_loan']['loan_term'] = $loan_term;
+	$_SESSION['create_loan']['payout_method'] = $payoyt;
+
+  $form = drupal_get_form('loan_car_data_form');
+  $output = drupal_render($form);
+  $commands[] = ajax_command_html('#allrise-create-loan-wrapper', $output);
+
+  return array('#type' => 'ajax', '#commands' => $commands);
+}
+
+function allrise_loan_create_back_ajax_callback(){
+	unset($_SESSION['create_loan']);
+	$_SESSION['create_loan'] = array();
+  $form = drupal_get_form('allrise_create_loan_form');
+  $output = drupal_render($form);
+  $commands[] = ajax_command_html('#allrise-create-loan-wrapper', $output);
+
+  return array('#type' => 'ajax', '#commands' => $commands);
+}
+
+
+/*helper function. collect data for 3step car form*/
+function allrise_auto_list($auto = "NULL"){
+
+	$auto_list = '';
+
+	$query = db_select('auto', 'a');
+	$query->fields('a', array());
+	$result = $query->execute()->fetchAllAssoc('id_auto');
+
+	foreach ($result as $k => $val) {
+		$auto_list[$val->id_auto] = $val->name_auto;
+	}
+
+	return $auto_list;
+}
+
+function model_auto_content($id_auto = "NULL"){
+	$auto_model = '';
+
+	$auto = (is_numeric($id_auto)) ? $id_auto : 1 ;
+
+	$query = db_select('com', 'c');
+	$query->innerJoin('model', 'm', 'c.id_model = m.id_model');
+	$query->condition('c.id_auto', $auto);
+	$query->fields('m', array());
+	$result = $query->execute()->fetchAll();
+	foreach ($result as $k => $val) {
+		$auto_model[$val->id_model] = $val->name_model;
+	}
+
+	return $auto_model;
+}
+
+function loan_create_car_information($type = "NULL", $code = "NULL"){
+	$data = array();
+
+	$query = db_select('allrise_loan_settings_data', 'l');
+	$query->fields('l', array());
+	$query->condition('l.pledge_type', $type);
+	$query->condition('l.product_code' , $code);
+	$result = $query->execute()->fetchObject();
+
+	return $data;
+}
+
+
+/*third step. loan data*/
+
+function loan_car_data_form($node, &$form_state) {
+	$auto_list = '';
+	$auto_list = allrise_auto_list();
+  $form['#attributes']['class'][] = 'allrise-car-data-loan-wrapper';
+  if (isset($_SESSION['loan']['bank_product'])) {
+    switch ($_SESSION['loan']['bank_product']) {
+      case '0':
+
+        $form['mark_auto'] = array(
+          '#type' => 'select',
+          '#options' => allrise_auto_list(),
+          '#validated' => TRUE,
+          '#ajax'       => array(
+      	    'callback'  => 'model_auto_ajax_content',
+      	    'wrapper'   => 'model-auto-select',
+      	    'method'    => 'replace',
+      	    'effect'    => 'fade',
+      	    'progress'  => 'throbber',
+      	    'event'     => 'change',
+      	  ),
+      	  '#attributes' => array('class' => array('ctools-auto-submit')),
+          '#default_value' => isset($_SESSION['create_loan']['auto_id']) ? $_SESSION['create_loan']['auto_id'] : 1,
+        );
+
+        $model_list = isset($_SESSION['create_loan']['auto_id']) ? model_auto_content($_SESSION['create_loan']['auto_id']) :  model_auto_content();
+        $model_chosen = isset($_SESSION['create_loan']['model_id']) ? $_SESSION['create_loan']['model_id'] : 2 ;
+
+        $form['model_auto'] = array(
+        	'#prefix' => '<div id="model-auto-select">',
+          '#suffix' => '</div>',
+          '#name' => 'model_auto',
+          '#type' => 'select',
+          '#attributes' => array('class' => array('selecter')),
+          '#options' =>  $model_list,
+          '#validated' => TRUE,
+          '#default_value' => $model_chosen,
+        );
+
+        $form['engine_volume'] = array(
+        	'#name' => 'engine_volume',
+          '#type' => 'textfield',
+          '#attributes' => array('class' => array('form-text', 'numeric', 'pfield'), 'placeholder' => t('Enter engine volume')),
+          '#default_value' => isset($_SESSION['create_loan']['engine_volume']) ? $_SESSION['create_loan']['engine_volume'] : '',
+        );
+
+        $fuel_types = array(
+        	'Diesel' => t("Diesel"),
+        	'Petrol' => t("Petrol"),
+        	'LPG' => t("LPG"),
+        	'CNG' => t("CNG"),
+        	'Electric' => t("Electric"),
+        	'Hybrid' => t("Hybrid"),
+        	'Ethanol' => t("Ethanol"),
+        );
+
+        $form['fuel_type'] = array(
+        	'#name' => 'fuel_type',
+          '#type' => 'select',
+          '#attributes' => array('class' => array('selecter')),
+          '#options' => $fuel_types,
+          '#default_value' => isset($_SESSION['create_loan']['fuel_type']) ? $fuel_types[$_SESSION['create_loan']['fuel_type']] : $fuel_types,
+        );
+
+        $form['mileage'] = array(
+        	'#name' => 'mileage',
+          '#type' => 'textfield',
+          '#attributes' => array('class' => array('form-text', 'numeric', 'pfield'), 'placeholder' => t('Enter auto mileage')),
+          '#default_value' => isset($_SESSION['create_loan']['auto_mileage']) ? $_SESSION['create_loan']['auto_mileage'] : '',
+        );
+
+        $form['production_year'] = array(
+        	'#name' => 'production_year',
+          '#type' => 'textfield',
+          '#attributes' => array('class' => array('form-text', 'numeric', 'pfield'), 'placeholder' => t('Enter production year')),
+          '#default_value' => isset($_SESSION['create_loan']['auto_production_year']) ? $_SESSION['create_loan']['auto_production_year'] : '' ,
+        );
+
+        $form['auto_color'] = array(
+        	'#name' => 'auto_color',
+          '#type' => 'textfield',
+          '#attributes' => array('class' => array('form-text', 'pfield'), 'placeholder' => t('Enter auto color')),
+          '#default_value' => isset($_SESSION['create_loan']['auto_color']) ? $_SESSION['create_loan']['auto_color'] : '' ,
+        );
+
+        $form['VIN'] = array(
+        	'#name' => 'VIN',
+          '#type' => 'textfield',
+          '#attributes' => array('class' => array('form-text', 'pfield'), 'placeholder' => t('Enter auto VIN')),
+          '#default_value' => isset($_SESSION['create_loan']['vin_code']) ? $_SESSION['create_loan']['vin_code'] : '' ,
+        );
+
+        $form['auto_number'] = array(
+        	'#name' => 'auto_number',
+          '#type' => 'textfield',
+          '#attributes' => array('class' => array('form-text', 'pfield'), 'placeholder' => t('Enter auto number')),
+          '#default_value' => isset($_SESSION['create_loan']['auto_number']) ? $_SESSION['create_loan']['auto_number'] : '' ,
+        );
+
+        $form['tp_number'] = array(
+        	'#name' => 'tp_number',
+          '#type' => 'textfield',
+          '#attributes' => array('class' => array('form-text', 'pfield'), 'placeholder' => t('Enter tp number')),
+          '#default_value' => isset($_SESSION['create_loan']['tp_number']) ? $_SESSION['create_loan']['tp_number'] : '' ,
+        );
+
+        $form['auto_description'] = array(
+          '#type' => 'textarea',
+          '#attributes' => array('class' => array('form-textarea')),
+          '#rows' => 13,
+          '#default_value' => isset($_SESSION['create_loan']['auto_status_description']) ? $_SESSION['create_loan']['auto_status_description'] : '' ,
+        );
+
+        $insurance_options = array('1' => t('Yes'), '0' => t('No'));
+
+        $form['casco'] = array(
+          '#type' => 'radios',
+          '#options' => $insurance_options,
+          '#default_value' => isset($_SESSION['create_loan']['casco']) ? $_SESSION['create_loan']['casco'] : 0,
+        );
+
+        $form['osago'] = array(
+          '#type' => 'radios',
+          '#options' => $insurance_options,
+          '#default_value' => isset($_SESSION['create_loan']['ctp']) ? $_SESSION['create_loan']['ctp'] : 0,
+        );
+
+      	$form['allfiles'] = array(
+      	    '#type' => 'container',
+      	    '#tree' => true,
+      	    '#attributes' => array('id' => array('allrise_attached_img'), 'class' => array('form-item', 'form-type-file')),
+      	);
+
+      	$form['allfiles']['im-container'] = array(
+      	  '#prefix'=>'<div id="im-area">',
+      	  '#markup' => _allrise_loan_uploaded_files(1),
+      	  '#suffix'=>'</div>',
+      	);
+
+      	$form['allfiles']['image_file'] = array(
+      	  '#type' => 'file',
+      	  '#description' => t('Пожалуйста, сфотографируйте и прикрепите изображения вашего автомобиля<br> (интерьер, экстерьер, основные отличительные черты)'),
+      	);
+
+      	$form['allfiles']['upload'] = array(
+      	   '#type' => 'button',
+      	   '#value' => 'upload',
+      	   '#attributes' => array('class' => array('element-invisible', 'allrise_autoupload_img')),
+      	   '#ajax'=> array(
+      	      'callback'=>'upload_first_section_attach',
+      	      'wrapper'=> 'im-area',
+      	      'method'=> 'replace',
+      	      'effect'=> 'fade',
+      	      'progress'  => array('type' => 'bar'),
+      	   ),
+      	);
+
+      	$form['second_section'] = array(
+      		'#name' => 'second_section',
+          '#type' => 'container',
+          '#tree' => true,
+          '#attributes' => array('id' => array('second_section_attached'), 'class' => array('form-item', 'form-type-file')),
+      	);
+
+      	$form['second_section']['im-container'] = array(
+      	  '#prefix'=>'<div id="next-area">',
+      	  '#markup' => _allrise_loan_uploaded_files(2),
+      	  '#suffix'=>'</div>',
+      	);
+
+      	$form['second_section']['image_file'] = array(
+      	  '#type' => 'file',
+      	  '#description' => t('Пожалуйста, сфотографируйте и прикрепите изображения вашего автомобиля<br> (интерьер, экстерьер, основные отличительные черты)'),
+      	);
+
+      	$form['second_section']['upload'] = array(
+      	   '#type' => 'button',
+      	   '#value' => 'upload_next',
+      	   '#attributes' => array('class' => array('element-invisible', 'next_autoupload_img')),
+      	   '#ajax'=> array(
+      	      'callback'=>'upload_second_section_attach',
+      	      'wrapper'=> 'next-area',
+      	      'method'=> 'replace',
+      	      'effect'=> 'fade',
+      	      'progress'  => array('type' => 'bar'),
+      	   ),
+      	);
+
+      break;
+
+      case '1':
+
+        $form['estate_type'] = array(
+          '#name' => 'estate_type',
+          '#type' => 'select',
+          '#attributes' => array('class' => array('selecter')),
+          '#options' =>array(0 => t('Коммерческая'), 1 => t('Жилая'),),
+          '#default_value' => isset($_SESSION['create_loan']['estate_type']) ? $_SESSION['create_loan']['estate_type'] : 0,
+        );
+
+        $form['footage_premises'] = array(
+          '#name' => 'footage_premises',
+          '#type' => 'textfield',
+          '#attributes' => array('class' => array('form-text', 'pfield'), 'placeholder' => t('Укажите метраж помещения')),
+          '#default_value' => isset($_SESSION['create_loan']['footage_premises']) ? $_SESSION['create_loan']['footage_premises'] : '' ,
+        );
+
+        $form['estate_street_name'] = array(
+          '#type' => 'textfield',
+          '#name' => 'estate_street_name',
+          '#default_value' => !empty($_SESSION['create_loan']['estate_street_name']) ? $_SESSION['create_loan']['estate_street_name'] : '',
+          '#attributes' =>array('placeholder' => t('Название улицы'), 'class' => array('large', 'pfield')),
+        );
+
+        $form['estate_house_number'] = array(
+          '#type' => 'textfield',
+          '#name' => 'estate_house_number',
+          '#default_value' => !empty($_SESSION['create_loan']['estate_house_number']) ? $_SESSION['create_loan']['estate_house_number'] : '',
+          '#attributes' =>array('placeholder' => t('Номер дома'), 'class' => array('small', 'pfield', 'numeric')),
+        );
+
+        $form['estate_housing'] = array(
+          '#type' => 'textfield',
+          '#name' => 'estate_housing',
+          '#default_value' => !empty($_SESSION['create_loan']['estate_housing']) ? $_SESSION['create_loan']['estate_housing'] : '',
+          '#attributes' =>array('placeholder' => t('Корпус'), 'class' => array('medium', 'numeric')),
+        );
+
+        $form['estate_appartment_adress'] = array(
+          '#type' => 'textfield',
+          '#name' => 'estate_appartment_adress',
+          '#default_value' => !empty($_SESSION['create_loan']['estate_appartment_adress']) ? $_SESSION['create_loan']['estate_appartment_adress'] : '',
+          '#attributes' =>array('placeholder' => t('Квартира'), 'class' => array('medium', 'pfield', 'numeric')),
+        );
+
+        $form['estate_city_adress'] = array(
+          '#type' => 'textfield',
+          '#name' => 'estate_city_adress',
+          '#default_value' => !empty($_SESSION['create_loan']['estate_city_adress']) ? $_SESSION['create_loan']['estate_city_adress'] : '',
+          '#attributes' => array('class' => array('pfield'), 'placeholder' => t('Город')),
+        );
+
+        $form['estate_region'] = array(
+          '#type' => 'textfield',
+          '#name' => 'estate_region',
+          '#default_value' => !empty($_SESSION['create_loan']['estate_region']) ? $_SESSION['create_loan']['estate_region'] : '',
+          '#attributes' => array('class' => array('pfield'), 'placeholder' => t('Область')),
+        );
+        $enabled_country_list = countries_get_countries('name', array('enabled' => COUNTRIES_ENABLED));
+        unset($enabled_country_list['UA'],$enabled_country_list['RU']);
+        $form['estate_country_list'] = array(
+          '#type' => 'select',
+          '#name' => 'estate_country_list',
+          '#options' => array('' => t("Country"), 'UA' => t('Ukraine'), 'RU' => t('Russia'), 'dash' => '------------------------') + $enabled_country_list,
+          '#default_value' => 'RU',
+          '#attributes' => array('class' => array('selecter'), 'disabled' => TRUE),
+
+        );
+
+        $form['estate_postcode'] = array(
+          '#type' => 'textfield',
+          '#name' => 'estate_postcode',
+          '#default_value' => !empty($_SESSION['create_loan']['estate_postcode']) ? $_SESSION['create_loan']['estate_postcode'] : '',
+          '#attributes' => array('class' => array('pfield', 'numeric'), 'placeholder' => t('Почтовый индекс')),
+        );
+
+        $form['allfiles'] = array(
+            '#type' => 'container',
+            '#tree' => true,
+            '#attributes' => array('id' => array('allrise_attached_img'), 'class' => array('form-item', 'form-type-file')),
+        );
+
+        $form['allfiles']['im-container'] = array(
+          '#prefix'=>'<div id="im-area">',
+          '#markup' => _allrise_loan_uploaded_files(6),
+          '#suffix'=>'</div>',
+        );
+
+        $form['allfiles']['image_file'] = array(
+          '#type' => 'file',
+        );
+
+        $form['allfiles']['upload'] = array(
+           '#type' => 'button',
+           '#value' => 'upload',
+           '#attributes' => array('class' => array('element-invisible', 'allrise_autoupload_img')),
+           '#ajax'=> array(
+              'callback'=>'upload_estate_photo_attach_data',
+              'wrapper'=> 'im-area',
+              'method'=> 'replace',
+              'effect'=> 'fade',
+              'progress'  => array('type' => 'bar'),
+           ),
+        );
+
+      break;
+
+      case '2':
+        $form['deal_description'] = array(
+          '#name' => 'deal_description',
+          '#type' => 'textarea',
+          '#attributes' => array('class' => array('form-text', 'pfield')),
+          '#default_value' => isset($_SESSION['create_loan']['deal_description']) ? $_SESSION['create_loan']['deal_description'] : '',
+        );
+
+        $form['loan_estate_description'] = array(
+          '#name' => 'loan_estate_description',
+          '#type' => 'textarea',
+          '#attributes' => array('class' => array('form-textarea', 'pfield')),
+          '#rows' => 13,
+          '#default_value' => isset($_SESSION['create_loan']['loan_estate_description']) ? $_SESSION['create_loan']['loan_estate_description'] : '' ,
+        );
+
+        $form['second_section'] = array(
+          '#name' => 'second_section',
+          '#type' => 'container',
+          '#tree' => true,
+          '#attributes' => array('id' => array('second_section_attached'), 'class' => array('form-item', 'form-type-file')),
+        );
+
+        $form['second_section']['im-container'] = array(
+          '#prefix'=>'<div id="next-area">',
+          '#markup' => _allrise_loan_uploaded_files(7),
+          '#suffix'=>'</div>',
+        );
+
+        $form['second_section']['image_file'] = array(
+          '#type' => 'file',
+          '#description' => t('Пожалуйста, прикрепите необходимые файлы<br> (основные отличительные черты)'),
+        );
+
+        $form['second_section']['upload'] = array(
+          '#type' => 'button',
+          '#value' => 'upload_next',
+          '#attributes' => array('class' => array('element-invisible', 'next_autoupload_img')),
+          '#ajax'=> array(
+            'callback'=>'upload_deal_photo_attach_data',
+            'wrapper'=> 'next-area',
+            'method'=> 'replace',
+            'effect'=> 'fade',
+            'progress'  => array('type' => 'bar'),
+          ),
+        );
+      break;
+    }
+  }
+
+  $form['submit'] = array(
+  	'#name' => 'create_borrower_loan',
+    '#type' => 'submit',
+    '#value' => t('Продолжить'),
+    '#attributes' => array(
+      'class' => array('ctools-modal-ctools-message-style', 'ctools-use-modal', 'move-up-btn'),
+    ),
+    '#ajax' => array(
+      'wrapper' => 'allrise-car-params-loan-wrapper',
+      'callback' => 'allrise_car_data_ajax_callback',
+      'progress' => array('type' => 'none'),
+    ),
+  );
+
+  $form['create_and_register'] = array(
+  	'#name' => 'create_and_register',
+    '#type' => 'submit',
+    '#value' => t('Продолжить'),
+    '#attributes' => array('class' => array('move-up-btn')),
+    '#ajax' => array(
+      'wrapper' => 'allrise-car-params-loan-wrapper',
+      'callback' => 'create_loan_and_register_callback',
+      'progress' => array('type' => 'none'),
+    ),
+  );
+
+  $form['step_back'] = array(
+  	'#name' => 'step-back-button',
+    '#type' => 'submit',
+    '#value' => t('Back'),
+    '#attributes' => array('class' => array('form-cancel', 'move-up-btn')),
+    '#ajax' => array(
+      'wrapper' => 'allrise-create-loan-wrapper',
+      'callback' => 'allrise_car_data_back_ajax_callback',
+      'progress' => array('type' => 'none'),
+      ),
+  );
+
+  return $form;
+}
+
+function upload_deal_photo_attach_data($form, $form_state){
+
+  $file = file_save_upload('second_section', array('file_validate_extensions' => array('png gif jpg jpeg')), "public://",$replace = FILE_EXISTS_REPLACE);
+  if ($file)
+  {
+    $file->status=FILE_STATUS_PERMANENT;
+    file_save($file);
+    $fileSize = format_size($file->filesize);
+
+    //update profile_user_foto in users
+    global $user;
+    $account = $user;
+
+    $imgData = "<span class='file-title'>{$file->filename}</span>" ." "."<span class='file-size'>({$fileSize})</span>" . " "."<span class ='file-delete'>".l(t('x'), 'loan-attached-file/nojs/'.$file->fid.'/7', array('attributes' => array('class' => array('use-ajax','deleteAttached', 'deleteAttached-'.$file->fid))))."</span>";
+    $uploadedFile= "<div class ='attachedFile attachedFile-{$file->fid}'>{$imgData}</div>";
+
+    $_SESSION['create_loan']['deal_file_attach'][$file->fid] = $file->fid;
+
+  }
+  else {
+    drupal_set_message('No file uploaded.');
+  }
+
+  ctools_include('ajax');
+  $commands = array();
+  $commands[] = ajax_command_append('#second_section_attached #next-area',$uploadedFile );
+  return array('#type' => 'ajax', '#commands' => $commands);
+  exit();
+}
+
+
+function upload_estate_photo_attach_data($form, $form_state){
+
+  $file = file_save_upload('allfiles', array('file_validate_extensions' => array('png gif jpg jpeg')), "public://",$replace = FILE_EXISTS_REPLACE);
+  if ($file)
+  {
+    $file->status=FILE_STATUS_PERMANENT;
+    file_save($file);
+    $fileSize = format_size($file->filesize);
+
+    //update profile_user_foto in users
+    global $user;
+    $account = $user;
+
+    $imgData = "<span class='file-title'>{$file->filename}</span>" ." "."<span class='file-size'>({$fileSize})</span>" . " "."<span class ='file-delete'>".l(t('x'), 'loan-attached-file/nojs/'.$file->fid.'/6', array('attributes' => array('class' => array('use-ajax','deleteAttached', 'deleteAttached-'.$file->fid))))."</span>";
+    $uploadedFile= "<div class ='attachedFile attachedFile-{$file->fid}'>{$imgData}</div>";
+
+    $_SESSION['create_loan']['estate_img_data'][$file->fid] = $file->fid;
+
+  }
+  else {
+    drupal_set_message('No file uploaded.');
+  }
+
+  ctools_include('ajax');
+  $commands = array();
+  $commands[] = ajax_command_append('#allrise_attached_img #im-area',$uploadedFile );
+  return array('#type' => 'ajax', '#commands' => $commands);
+  exit();
+}
+
+function upload_first_section_attach($form, $form_state){
+
+  $file = file_save_upload('allfiles', array('file_validate_extensions' => array('png gif jpg jpeg')), "public://",$replace = FILE_EXISTS_REPLACE);
+  if ($file)
+  {
+    $file->status=FILE_STATUS_PERMANENT;
+    file_save($file);
+    $fileSize = format_size($file->filesize);
+
+    //update profile_user_foto in users
+    global $user;
+    $account = $user;
+
+    $imgData = "<span class='file-title'>{$file->filename}</span>" ." "."<span class='file-size'>({$fileSize})</span>" . " "."<span class ='file-delete'>".l(t('x'), 'loan-attached-file/nojs/'.$file->fid.'/1', array('attributes' => array('class' => array('use-ajax','deleteAttached', 'deleteAttached-'.$file->fid))))."</span>";
+    $uploadedFile= "<div class ='attachedFile attachedFile-{$file->fid}'>{$imgData}</div>";
+
+    $_SESSION['create_loan']['first_section_attach'][$file->fid] = $file->fid;
+
+  }
+  else {
+    drupal_set_message('No file uploaded.');
+  }
+
+  ctools_include('ajax');
+  $commands = array();
+  $commands[] = ajax_command_append('#allrise_attached_img #im-area',$uploadedFile );
+  return array('#type' => 'ajax', '#commands' => $commands);
+  exit();
+}
+
+function upload_second_section_attach($form, $form_state){
+
+  $file = file_save_upload('second_section', array('file_validate_extensions' => array('png gif jpg jpeg')), "public://",$replace = FILE_EXISTS_REPLACE);
+  if ($file)
+  {
+    $file->status=FILE_STATUS_PERMANENT;
+    file_save($file);
+    $fileSize = format_size($file->filesize);
+
+    //update profile_user_foto in users
+    global $user;
+    $account = $user;
+
+    $imgData = "<span class='file-title'>{$file->filename}</span>" ." "."<span class='file-size'>({$fileSize})</span>" . " "."<span class ='file-delete'>".l(t('x'), 'loan-attached-file/nojs/'.$file->fid.'/2', array('attributes' => array('class' => array('use-ajax','deleteAttached', 'deleteAttached-'.$file->fid))))."</span>";
+    $uploadedFile= "<div class ='attachedFile attachedFile-{$file->fid}'>{$imgData}</div>";
+
+    $_SESSION['create_loan']['second_section_attach'][$file->fid] = $file->fid;
+
+  }
+  else {
+    drupal_set_message('No file uploaded.');
+  }
+
+  ctools_include('ajax');
+  $commands = array();
+  $commands[] = ajax_command_append('#second_section_attached #next-area',$uploadedFile );
+  return array('#type' => 'ajax', '#commands' => $commands);
+  exit();
+}
+
+function delete_attached_lfile_callback($ajax,$fid=0, $type=0){
+
+  $is_ajax = $ajax === 'ajax';
+watchdog('ajax', '<pre>'.print_r('1', true)." ".print_r($ajax, true).'</pre>', array(), WATCHDOG_NOTICE, 'link');
+  $file = file_load($fid);
+
+  ctools_include('ajax');
+  global $user;
+
+  if ($is_ajax) {
+    $commands = array();
+    file_delete($file);
+    // Perhaps we could remove the table row we just deleted?
+    // $commands[] = ctools_ajax_command_reload();
+    $commands[] = ajax_command_remove('.attachedFile.attachedFile-' . $fid);
+    switch ($type) {
+    	case '1':
+    		unset($_SESSION['create_loan']['first_section_attach'][$fid]);
+    		break;
+
+    	case '2':
+    		unset($_SESSION['create_loan']['second_section_attach'][$fid]);
+    		break;
+
+    	case '3':
+    		unset($_SESSION['create_loan']['passport_img_data'][$fid]);
+    		break;
+
+    	case '4':
+    		unset($_SESSION['create_loan']['licence_img_data'][$fid]);
+    		break;
+
+      case '5':
+        unset($_SESSION['user_register']['passport_scan'][$fid]);
+        break;
+    }
+
+
+    return array(
+      '#type' => 'ajax',
+      '#commands' => $commands,
+    );
+  }
+
+	return 'error';
+}
+
+function _allrise_loan_uploaded_files($type = NULL){
+	$output = '';
+
+	switch ($type) {
+		case '1':
+
+			if (!empty($_SESSION['create_loan']['first_section_attach'])) {
+				foreach ($_SESSION['create_loan']['first_section_attach'] as $k => $val) {
+					$file = file_load($val);
+					if ($file) {
+						$fileSize = format_size($file->filesize);
+						$imgData = "<span class='file-title'>{$file->filename}</span>" ." "."<span class='file-size'>({$fileSize})</span>" . " "."<span class ='file-delete'>".l(t('x'), 'loan-attached-file/nojs/'.$file->fid.'/'.$type, array('attributes' => array('class' => array('use-ajax','deleteAttached', 'deleteAttached-'.$file->fid))))."</span>";
+	    			$uploadedFile= "<div class ='attachedFile attachedFile-{$file->fid}'>{$imgData}</div>";
+	    			$output .= $uploadedFile;
+					}
+				}
+			}
+			else{
+				$output = '';
+			}
+
+			break;
+
+		case '2':
+
+			if (!empty($_SESSION['create_loan']['second_section_attach'])) {
+				foreach ($_SESSION['create_loan']['second_section_attach'] as $k => $val) {
+					$file = file_load($val);
+					if ($file) {
+						$fileSize = format_size($file->filesize);
+						$imgData = "<span class='file-title'>{$file->filename}</span>" ." "."<span class='file-size'>({$fileSize})</span>" . " "."<span class ='file-delete'>".l(t('x'), 'loan-attached-file/nojs/'.$file->fid.'/'.$type, array('attributes' => array('class' => array('use-ajax','deleteAttached', 'deleteAttached-'.$file->fid))))."</span>";
+	    			$uploadedFile= "<div class ='attachedFile attachedFile-{$file->fid}'>{$imgData}</div>";
+	    			$output .= $uploadedFile;
+					}
+				}
+			}
+			else{
+				$output = '';
+			}
+
+			break;
+
+		case '3':
+
+			if (!empty($_SESSION['create_loan']['passport_img_data'])) {
+				foreach ($_SESSION['create_loan']['passport_img_data'] as $k => $val) {
+					$file = file_load($val);
+					if ($file) {
+						$fileSize = format_size($file->filesize);
+						$imgData = "<span class='file-title'>{$file->filename}</span>" ." "."<span class='file-size'>({$fileSize})</span>" . " "."<span class ='file-delete'>".l(t('x'), 'loan-attached-file/nojs/'.$file->fid.'/'.$type, array('attributes' => array('class' => array('use-ajax','deleteAttached', 'deleteAttached-'.$file->fid))))."</span>";
+	    			$uploadedFile= "<div class ='attachedFile attachedFile-{$file->fid}'>{$imgData}</div>";
+	    			$output .= $uploadedFile;
+					}
+				}
+			}
+			else{
+				$output = '';
+			}
+
+			break;
+
+		case '4':
+
+			if (!empty($_SESSION['create_loan']['licence_img_data'])) {
+				foreach ($_SESSION['create_loan']['licence_img_data'] as $k => $val) {
+					$file = file_load($val);
+					if ($file) {
+						$fileSize = format_size($file->filesize);
+						$imgData = "<span class='file-title'>{$file->filename}</span>" ." "."<span class='file-size'>({$fileSize})</span>" . " "."<span class ='file-delete'>".l(t('x'), 'loan-attached-file/nojs/'.$file->fid.'/'.$type, array('attributes' => array('class' => array('use-ajax','deleteAttached', 'deleteAttached-'.$file->fid))))."</span>";
+	    			$uploadedFile= "<div class ='attachedFile attachedFile-{$file->fid}'>{$imgData}</div>";
+	    			$output .= $uploadedFile;
+					}
+				}
+			}
+			else{
+				$output = '';
+			}
+
+			break;
+
+    case '5':
+
+      if (!empty($_SESSION['user_register']['passport_scan'])) {
+        foreach ($_SESSION['user_register']['passport_scan'] as $k => $val) {
+          $file = file_load($val);
+          if ($file) {
+            $fileSize = format_size($file->filesize);
+            $imgData = "<span class='file-title'>{$file->filename}</span>" ." "."<span class='file-size'>({$fileSize})</span>" . " "."<span class ='file-delete'>".l(t('x'), 'loan-attached-file/nojs/'.$file->fid.'/'.$type, array('attributes' => array('class' => array('use-ajax','deleteAttached', 'deleteAttached-'.$file->fid))))."</span>";
+            $uploadedFile= "<div class ='attachedFile attachedFile-{$file->fid}'>{$imgData}</div>";
+            $output .= $uploadedFile;
+          }
+        }
+      }
+      else{
+        $output = '';
+      }
+
+      break;
+
+    case '6':
+
+      if (!empty($_SESSION['create_loan']['estate_img_data'])) {
+        foreach ($_SESSION['create_loan']['estate_img_data'] as $k => $val) {
+          $file = file_load($val);
+          if ($file) {
+            $fileSize = format_size($file->filesize);
+            $imgData = "<span class='file-title'>{$file->filename}</span>" ." "."<span class='file-size'>({$fileSize})</span>" . " "."<span class ='file-delete'>".l(t('x'), 'loan-attached-file/nojs/'.$file->fid.'/'.$type, array('attributes' => array('class' => array('use-ajax','deleteAttached', 'deleteAttached-'.$file->fid))))."</span>";
+            $uploadedFile= "<div class ='attachedFile attachedFile-{$file->fid}'>{$imgData}</div>";
+            $output .= $uploadedFile;
+          }
+        }
+      }
+      else{
+        $output = '';
+      }
+
+      break;
+
+    case '7':
+
+      if (!empty($_SESSION['create_loan']['deal_file_attach'])) {
+        foreach ($_SESSION['create_loan']['deal_file_attach'] as $k => $val) {
+          $file = file_load($val);
+          if ($file) {
+            $fileSize = format_size($file->filesize);
+            $imgData = "<span class='file-title'>{$file->filename}</span>" ." "."<span class='file-size'>({$fileSize})</span>" . " "."<span class ='file-delete'>".l(t('x'), 'loan-attached-file/nojs/'.$file->fid.'/'.$type, array('attributes' => array('class' => array('use-ajax','deleteAttached', 'deleteAttached-'.$file->fid))))."</span>";
+            $uploadedFile= "<div class ='attachedFile attachedFile-{$file->fid}'>{$imgData}</div>";
+            $output .= $uploadedFile;
+          }
+        }
+      }
+      else{
+        $output = '';
+      }
+
+      break;
+
+		default:
+			$output = '';
+			break;
+	}
+	return $output;
+}
+
+function model_auto_ajax_content($form, &$form_state){
+
+	$form['model_auto'] = array(
+  	'#prefix' => '<div id="model-auto-select">',
+    '#suffix' => '</div>',
+    '#name' => 'model_auto',
+    '#type' => 'select',
+    '#attributes' => array('class' => array('selecter')),
+    '#options' =>  model_auto_content($form_state['values']['mark_auto']),
+  );
+
+	return $form['model_auto'];
+}
+
+function allrise_car_data_ajax_callback($form, &$form_state){
+	global $user;
+	ctools_include('modal');
+  ctools_modal_add_js();
+	$user_id = $user->ID;
+  $_SESSION['create_loan']['bid'] = $user_id;
+  switch ($_SESSION['loan']['bank_product']) {
+    case '0':
+
+      $query = db_select('auto', 'a');
+    	$query->leftJoin('com', 'c', 'a.id_auto = c.id_auto');
+    	$query->leftJoin('model', 'm', 'c.id_model = m.id_model');
+    	$query->condition('c.id_auto', $form_state['values']['mark_auto']);
+    	$query->condition('m.id_model', $form_state['values']['model_auto']);
+    	$query->fields('m', array('name_model'));
+    	$query->fields('a', array('name_auto'));
+    	$result = $query->execute()->fetchObject();
+
+      $_SESSION['create_loan']['auto_id'] = $form_state['values']['mark_auto'];
+      $_SESSION['create_loan']['model_id'] = $form_state['values']['model_auto'];
+
+    	$_SESSION['create_loan']['auto_mark'] = $result->name_model;
+    	$_SESSION['create_loan']['auto_model'] = $result->name_auto;
+    	$_SESSION['create_loan']['engine_volume'] = $form_state['values']['engine_volume'];
+    	$_SESSION['create_loan']['fuel_type'] = $form_state['values']['fuel_type'];
+    	$_SESSION['create_loan']['auto_mileage'] = $form_state['values']['mileage'];
+    	$_SESSION['create_loan']['auto_production_year'] = $form_state['values']['production_year'];
+    	$_SESSION['create_loan']['auto_color'] = $form_state['values']['auto_color'];
+    	$_SESSION['create_loan']['vin_code'] = $form_state['values']['VIN'];
+    	$_SESSION['create_loan']['auto_number'] = $form_state['values']['auto_number'];
+    	$_SESSION['create_loan']['tp_number'] = $form_state['values']['tp_number'];
+    	$_SESSION['create_loan']['auto_status_description'] = $form_state['values']['auto_description'];
+    	$_SESSION['create_loan']['casco'] = $form_state['values']['casco'];
+    	$_SESSION['create_loan']['ctp'] = $form_state['values']['osago'];
+
+    break;
+
+    case '1':
+      $_SESSION['create_loan']['estate_type'] = $form_state['values']['estate_type'];
+      $_SESSION['create_loan']['footage_premises'] = $form_state['values']['footage_premises'];
+      $_SESSION['create_loan']['estate_street_name'] = $form_state['values']['estate_street_name'];
+      $_SESSION['create_loan']['estate_house_number'] = $form_state['values']['estate_house_number'];
+      $_SESSION['create_loan']['estate_housing'] = $form_state['values']['estate_housing'];
+      $_SESSION['create_loan']['estate_appartment_adress'] = $form_state['values']['estate_appartment_adress'];
+      $_SESSION['create_loan']['estate_city_adress'] = $form_state['values']['estate_city_adress'];
+      $_SESSION['create_loan']['estate_region'] = $form_state['values']['estate_region'];
+      $_SESSION['create_loan']['estate_country_list'] = $form_state['values']['estate_country_list'];
+      $_SESSION['create_loan']['estate_postcode'] = $form_state['values']['estate_postcode'];
+      break;
+
+    case '2':
+      $_SESSION['create_loan']['deal_description'] = $form_state['values']['deal_description'];
+      $_SESSION['create_loan']['loan_estate_description'] = $form_state['values']['loan_estate_description'];
+      break;
+  }
+
+  $output = '<div class="step active">
+                    <div class="message-done">
+                      <h3>Ваша заявка принята</h3>
+                      <div class="description"><b>Ваша заявка принята на рассмотрение</b>,<br> менеджер свяжется с вами в ближайшее время</div>
+                    </div>
+                  </div>';
+
+  $_SESSION['popup_parent_page'] = "";
+  $_SESSION['popup_parent_page'] = "create-loan";
+
+  $commands = array();
+  $form1 = drupal_get_form('allrise_code_sms_confirm_form');
+  $commands[] = ctools_modal_command_display(t('Confirm transaction'), $form1);
+
+  print ajax_render($commands);
+  exit;
+}
+
+function allrise_car_data_back_ajax_callback($form, &$form_state){
+  global $user;
+
+  if ($user->uid != 0) {
+  	$user_id = $user->ID;
+    $_SESSION['create_loan']['bid'] = $user_id;
+  }
+  switch ($_SESSION['loan']['bank_product']) {
+    case '0':
+
+      $query = db_select('auto', 'a');
+      $query->leftJoin('com', 'c', 'a.id_auto = c.id_auto');
+      $query->leftJoin('model', 'm', 'c.id_model = m.id_model');
+      $query->condition('c.id_auto', $form_state['values']['mark_auto']);
+      $query->condition('m.id_model', $form_state['values']['model_auto']);
+      $query->fields('m', array('name_model'));
+      $query->fields('a', array('name_auto'));
+      $result = $query->execute()->fetchObject();
+
+      $_SESSION['create_loan']['auto_id'] = $form_state['values']['mark_auto'];
+      $_SESSION['create_loan']['model_id'] = $form_state['values']['model_auto'];
+
+      $_SESSION['create_loan']['bid'] = $user_id;
+
+      $_SESSION['create_loan']['auto_mark'] = $result->name_model;
+      $_SESSION['create_loan']['auto_model'] = $result->name_auto;
+      $_SESSION['create_loan']['engine_volume'] = $form_state['values']['engine_volume'];
+      $_SESSION['create_loan']['fuel_type'] = $form_state['values']['fuel_type'];
+      $_SESSION['create_loan']['auto_mileage'] = $form_state['values']['mileage'];
+      $_SESSION['create_loan']['auto_production_year'] = $form_state['values']['production_year'];
+      $_SESSION['create_loan']['auto_color'] = $form_state['values']['auto_color'];
+      $_SESSION['create_loan']['vin_code'] = $form_state['values']['VIN'];
+      $_SESSION['create_loan']['auto_number'] = $form_state['values']['auto_number'];
+      $_SESSION['create_loan']['tp_number'] = $form_state['values']['tp_number'];
+      $_SESSION['create_loan']['auto_status_description'] = $form_state['values']['auto_description'];
+      $_SESSION['create_loan']['casco'] = $form_state['values']['casco'];
+      $_SESSION['create_loan']['ctp'] = $form_state['values']['osago'];
+
+    break;
+
+    case '1':
+      $_SESSION['create_loan']['estate_type'] = $form_state['values']['estate_type'];
+      $_SESSION['create_loan']['footage_premises'] = $form_state['values']['footage_premises'];
+      $_SESSION['create_loan']['estate_street_name'] = $form_state['values']['estate_street_name'];
+      $_SESSION['create_loan']['estate_house_number'] = $form_state['values']['estate_house_number'];
+      $_SESSION['create_loan']['estate_housing'] = $form_state['values']['estate_housing'];
+      $_SESSION['create_loan']['estate_appartment_adress'] = $form_state['values']['estate_appartment_adress'];
+      $_SESSION['create_loan']['estate_city_adress'] = $form_state['values']['estate_city_adress'];
+      $_SESSION['create_loan']['estate_region'] = $form_state['values']['estate_region'];
+      $_SESSION['create_loan']['estate_country_list'] = $form_state['values']['estate_country_list'];
+      $_SESSION['create_loan']['estate_postcode'] = $form_state['values']['estate_postcode'];
+      break;
+
+    case '2':
+      $_SESSION['create_loan']['deal_description'] = $form_state['values']['deal_description'];
+      $_SESSION['create_loan']['loan_estate_description'] = $form_state['values']['loan_estate_description'];
+      break;
+  }
+
+
+  $form = drupal_get_form('loan_car_parameters_form');
+  $output = drupal_render($form);
+  $commands[] = ajax_command_html('#allrise-create-loan-wrapper', $output);
+
+  return array('#type' => 'ajax', '#commands' => $commands);
+}
+
+function create_loan_and_register_callback($form, &$form_state){
+
+ switch ($_SESSION['loan']['bank_product']) {
+    case '0':
+
+      $query = db_select('auto', 'a');
+      $query->leftJoin('com', 'c', 'a.id_auto = c.id_auto');
+      $query->leftJoin('model', 'm', 'c.id_model = m.id_model');
+      $query->condition('c.id_auto', $form_state['values']['mark_auto']);
+      $query->condition('m.id_model', $form_state['values']['model_auto']);
+      $query->fields('m', array('name_model'));
+      $query->fields('a', array('name_auto'));
+      $result = $query->execute()->fetchObject();
+
+      $_SESSION['create_loan']['auto_id'] = $form_state['values']['mark_auto'];
+      $_SESSION['create_loan']['model_id'] = $form_state['values']['model_auto'];
+
+      $_SESSION['create_loan']['bid'] = $user_id;
+
+      $_SESSION['create_loan']['auto_mark'] = $result->name_model;
+      $_SESSION['create_loan']['auto_model'] = $result->name_auto;
+      $_SESSION['create_loan']['engine_volume'] = $form_state['values']['engine_volume'];
+      $_SESSION['create_loan']['fuel_type'] = $form_state['values']['fuel_type'];
+      $_SESSION['create_loan']['auto_mileage'] = $form_state['values']['mileage'];
+      $_SESSION['create_loan']['auto_production_year'] = $form_state['values']['production_year'];
+      $_SESSION['create_loan']['auto_color'] = $form_state['values']['auto_color'];
+      $_SESSION['create_loan']['vin_code'] = $form_state['values']['VIN'];
+      $_SESSION['create_loan']['auto_number'] = $form_state['values']['auto_number'];
+      $_SESSION['create_loan']['tp_number'] = $form_state['values']['tp_number'];
+      $_SESSION['create_loan']['auto_status_description'] = $form_state['values']['auto_description'];
+      $_SESSION['create_loan']['casco'] = $form_state['values']['casco'];
+      $_SESSION['create_loan']['ctp'] = $form_state['values']['osago'];
+
+    break;
+
+    case '1':
+      $_SESSION['create_loan']['estate_type'] = $form_state['values']['estate_type'];
+      $_SESSION['create_loan']['footage_premises'] = $form_state['values']['footage_premises'];
+      $_SESSION['create_loan']['estate_street_name'] = $form_state['values']['estate_street_name'];
+      $_SESSION['create_loan']['estate_house_number'] = $form_state['values']['estate_house_number'];
+      $_SESSION['create_loan']['estate_housing'] = $form_state['values']['estate_housing'];
+      $_SESSION['create_loan']['estate_appartment_adress'] = $form_state['values']['estate_appartment_adress'];
+      $_SESSION['create_loan']['estate_city_adress'] = $form_state['values']['estate_city_adress'];
+      $_SESSION['create_loan']['estate_region'] = $form_state['values']['estate_region'];
+      $_SESSION['create_loan']['estate_country_list'] = $form_state['values']['estate_country_list'];
+      $_SESSION['create_loan']['estate_postcode'] = $form_state['values']['estate_postcode'];
+      break;
+
+    case '2':
+      $_SESSION['create_loan']['deal_description'] = $form_state['values']['deal_description'];
+      $_SESSION['create_loan']['loan_estate_description'] = $form_state['values']['loan_estate_description'];
+      break;
+  }
+
+  if (!empty($_SESSION['create_loan']['borrower_type'])) {
+    switch ($_SESSION['create_loan']['borrower_type']) {
+      case '0':
+        $form = drupal_get_form('create_borrower_first_step_form');
+        break;
+
+      case '1':
+        $form = drupal_get_form('create_borrower_first_step_legal_form');
+        break;
+    }
+  }
+  else{
+    $form = drupal_get_form('create_borrower_first_step_legal_form');
+  }
+  $output = drupal_render($form);
+  $commands[] = ajax_command_html('#allrise-create-loan-wrapper', $output);
+watchdog('create_loan_and_reg', '<pre>'.print_r('1', true)." ".print_r($_SESSION['create_loan'], true).'</pre>', array(), WATCHDOG_NOTICE, 'link');
+  return array('#type' => 'ajax', '#commands' => $commands);
+}
+
+/*4 step. borrower register data. physical person register step1*/
+
+function create_borrower_first_step_form($form, &$form_state) {
+
+	$enabled_country_list = countries_get_countries('name', array('enabled' => COUNTRIES_ENABLED));
+  unset($enabled_country_list['UA'],$enabled_country_list['RU']);
+  $form['#attributes']['class'][] = 'allrise-borrower_register-step1-wrapper';
+
+  $form['borrower_type'] = array(
+  	'#name' => 'borrower_type',
+    '#type' => 'value',
+   	'#value' => '0', // 0 physical person. 1 legal person
+  );
+
+  $form['type_physical_person'] = array(
+  	'#name' => 'type_physical_person',
+    '#type' => 'value',
+    '#value' => t('Physical person'),
+    '#attributes' => array('class' => array('blue')),
+  );
+
+  $form['type_legal_person'] = array(
+  	'#name' => 'type_legal_person',
+    '#type' => 'button',
+    '#value' => t('Legal person'),
+    // '#attributes' => array('class' => array('blue')),
+    '#ajax' => array(
+      'wrapper' => 'allrise-create-loan-wrapper',
+      'callback' => 'type_legal_person_callback_data',
+      'progress' => array('type' => 'none'),
+      // 'effect' => 'slide',
+      ),
+  );
+
+  $form['surname'] = array(
+  	'#name' => 'surname',
+    '#type' => 'textfield',
+    '#default_value' => !empty($_SESSION['physical_person_borrower']['surname']) ? $_SESSION['physical_person_borrower']['surname'] : '',
+    '#attributes' => array('class' => array('ufield')),
+
+  );
+
+  $form['name'] = array(
+  	'#name' => 'name',
+    '#type' => 'textfield',
+    '#default_value' => !empty($_SESSION['physical_person_borrower']['name']) ? $_SESSION['physical_person_borrower']['name'] : '',
+    '#attributes' => array('class' => array('ufield')),
+  );
+
+  $form['patronymic'] = array(
+    '#name' => 'patronymic',
+    '#type' => 'textfield',
+    '#default_value' => !empty($_SESSION['physical_person_borrower']['patronymic']) ? $_SESSION['physical_person_borrower']['patronymic'] : '',
+    '#attributes' => array('class' => array('ufield')),
+  );
+
+  $active = array(0 => t('Male'), 1 => t('Female'));
+
+  $form['gender'] = array(
+    '#type' => 'radios',
+    '#name' => 'gender',
+    '#options' => $active,
+    '#default_value' => !empty($_SESSION['physical_person_borrower']['gender']) ? $_SESSION['physical_person_borrower']['gender'] : '',
+  );
+
+  $form['birthplace_country'] = array(
+    '#type' => 'select',
+    '#options' => array('' => t("Country"), 'UA' => t('Ukraine'), 'RU' => t('Russia'), 'dash' => '------------------------') + $enabled_country_list,
+    '#name' => 'birthplace_country',
+    '#default_value' => !empty($_SESSION['physical_person_borrower']['birthplace_country']) ? $_SESSION['physical_person_borrower']['birthplace_country'] : '',
+    '#attributes' => array('class' => array('medium')),
+  );
+
+  $form['birthplace'] = array(
+    '#type' => 'textfield',
+    '#name' => 'birthplace',
+    '#default_value' => !empty($_SESSION['physical_person_borrower']['birthplace']) ? $_SESSION['physical_person_borrower']['birthplace'] : '',
+    '#attributes' => array('class' => array('medium', 'ufield'), 'placeholder' => t('City')),
+  );
+
+  // Add a new process function to this date_select to remove hyphen.
+  $info = element_info('date_select');
+  $process = $info['#process'];
+  $process[]= 'allrise_register_date_select_process_am_only';
+
+  $format = 'd-m-Y';
+  $form['birthdate'] = array(
+  	'#name' => 'birthdate',
+	  '#attributes' => array(
+		    'class' => array('selecter'), // change to just 'text' for Drupal 6
+		),
+  	'#type' => 'date_select', // types 'date_text' and 'date_timezone' are also supported. See .inc file.
+	  '#date_format' => $format,
+	  '#date_label_position' => 'within', // See other available attributes and what they do in date_api_elements.inc
+	  '#date_increment' => 15, // Optional, used by the date_select and date_popup elements to increment minutes and seconds.
+	  '#date_year_range' => '-90:+0', // Optional, used to set the year range (back 3 years and forward 3 years is the default).
+	  '#default_value' => !empty($_SESSION['physical_person_borrower']['birthdate']) ? $_SESSION['physical_person_borrower']['birthdate'] : '',
+    '#process' => $process,
+  );
+
+  $form['identification_number'] = array(
+    '#type' => 'textfield',
+    '#name'=> 'identification number',
+    '#default_value' => !empty($_SESSION['physical_person_borrower']['identification_number']) ? $_SESSION['physical_person_borrower']['identification_number'] : '',
+    '#attributes' => array('class' => array('ufield', 'numeric')),
+  );
+
+  $form['passport_series'] = array(
+    '#type' => 'textfield',
+    '#name' => 'passport_series',
+    '#default_value' => !empty($_SESSION['physical_person_borrower']['passport_series']) ? $_SESSION['physical_person_borrower']['passport_series'] : '',
+    '#attributes' => array('class' => array('small', 'ufield')),
+  );
+
+  $form['passport_data'] = array(
+    '#type' => 'textfield',
+    '#name' => 'passport_data',
+    '#default_value' => !empty($_SESSION['physical_person_borrower']['passport_data']) ? $_SESSION['physical_person_borrower']['passport_data'] : '',
+    '#attributes' => array('class' => array('large', 'ufield', 'numeric')),
+  );
+
+  // Add a new process function to this date_select to remove hyphen.
+  $info = element_info('date_select');
+  $process = $info['#process'];
+  $process[]= 'allrise_register_date_select_process_am_only';
+  $form['issue_date'] = array(
+  	'#name' => 'issue_date',
+	  '#attributes' => array(
+		  'class' => array('selecter'), // change to just 'text' for Drupal 6
+		),
+  	'#type' => 'date_select', // types 'date_text' and 'date_timezone' are also supported. See .inc file.
+	  '#date_format' => $format,
+	  '#date_label_position' => 'within', // See other available attributes and what they do in date_api_elements.inc
+	  '#date_increment' => 15, // Optional, used by the date_select and date_popup elements to increment minutes and seconds.
+	  '#date_year_range' => '-90:+0', // Optional, used to set the year range (back 3 years and forward 3 years is the default).
+	  '#default_value' => !empty($_SESSION['physical_person_borrower']['issue_date']) ? $_SESSION['physical_person_borrower']['issue_date'] : '',
+    '#process' => $process,
+  );
+
+	$form['allfiles'] = array(
+	    '#type' => 'container',
+	    '#tree' => true,
+	    '#attributes' => array('id' => array('allrise_attached_img'), 'class' => array('form-item', 'form-type-file')),
+	);
+
+	$form['allfiles']['im-container'] = array(
+	  '#prefix'=>'<div id="im-area">',
+	  '#markup' => _allrise_loan_uploaded_files(3),
+	  '#suffix'=>'</div>',
+	);
+
+	$form['allfiles']['image_file'] = array(
+	  '#type' => 'file',
+	);
+
+	$form['allfiles']['upload'] = array(
+	   '#type' => 'button',
+	   '#value' => 'upload',
+	   '#attributes' => array('class' => array('element-invisible', 'allrise_autoupload_img')),
+	   '#ajax'=> array(
+	      'callback'=>'upload_passport_attach_data',
+	      'wrapper'=> 'im-area',
+	      'method'=> 'replace',
+	      'effect'=> 'fade',
+	      'progress'  => array('type' => 'bar'),
+	   ),
+	);
+
+	$form['second_section'] = array(
+		'#name' => 'second_section',
+    '#type' => 'container',
+    '#tree' => true,
+    '#attributes' => array('id' => array('second_section_attached'), 'class' => array('form-item', 'form-type-file')),
+	);
+
+	$form['second_section']['im-container'] = array(
+	  '#prefix'=>'<div id="next-area">',
+	  '#markup' => _allrise_loan_uploaded_files(4),
+	  '#suffix'=>'</div>',
+	);
+
+	$form['second_section']['image_file'] = array(
+	  '#type' => 'file',
+	  '#description' => t('Пожалуйста, сфотографируйте и прикрепите изображения вашего автомобиля<br> (интерьер, экстерьер, основные отличительные черты)'),
+	);
+
+	$form['second_section']['upload'] = array(
+	   '#type' => 'button',
+	   '#value' => 'upload_next',
+	   '#attributes' => array('class' => array('element-invisible', 'next_autoupload_img')),
+	   '#ajax'=> array(
+	      'callback'=>'upload_licence_attach_data',
+	      'wrapper'=> 'next-area',
+	      'method'=> 'replace',
+	      'effect'=> 'fade',
+	      'progress'  => array('type' => 'bar'),
+	   ),
+	);
+
+  if (isset($_SESSION['loan']['bank_product']) && $_SESSION['loan']['bank_product'] == 0) {
+    $form['license_number'] = array(
+      '#type' => 'textfield',
+      '#name' => 'license_number',
+      '#default_value' => !empty($_SESSION['physical_person_borrower']['license_number']) ? $_SESSION['physical_person_borrower']['license_number'] : '',
+      '#attributes' =>array('placeholder' => t('Номер удостоверения'), 'class' => array('ufield')),
+    );
+  }
+  else{
+    $form['license_number'] = array(
+      '#type' => 'textfield',
+      '#name' => 'license_number',
+      '#default_value' => !empty($_SESSION['physical_person_borrower']['license_number']) ? $_SESSION['physical_person_borrower']['license_number'] : '',
+      '#attributes' =>array('placeholder' => t('Номер удостоверения')),
+    );
+  }
+
+
+	$form['reg_place_check'] = array(
+	  '#type' => 'checkbox',
+	  '#name' => 'reg_place_check',
+	  '#default_value' => !empty($_SESSION['physical_person_borrower']['reg_place_check']) ? $_SESSION['physical_person_borrower']['reg_place_check'] : '0',
+	);
+
+	$form['street_name'] = array(
+	  '#type' => 'textfield',
+	  '#name' => 'street_name',
+	  '#default_value' => !empty($_SESSION['physical_person_borrower']['street_name']) ? $_SESSION['physical_person_borrower']['street_name'] : '',
+	  '#attributes' =>array('placeholder' => t('Название улицы'), 'class' => array('large', 'ufield')),
+	);
+
+	$form['house_number'] = array(
+    '#type' => 'textfield',
+    '#name' => 'house_number',
+    '#default_value' => !empty($_SESSION['physical_person_borrower']['house_number']) ? $_SESSION['physical_person_borrower']['house_number'] : '',
+    '#attributes' =>array('placeholder' => t('Номер дома'), 'class' => array('small', 'ufield', 'numeric')),
+  );
+
+	$form['housing'] = array(
+	  '#type' => 'textfield',
+	  '#name' => 'housing',
+	  '#default_value' => !empty($_SESSION['physical_person_borrower']['housing']) ? $_SESSION['physical_person_borrower']['housing'] : '',
+	  '#attributes' =>array('placeholder' => t('Корпус'), 'class' => array('medium', 'numeric')),
+	);
+
+  $form['appartment_adress'] = array(
+    '#type' => 'textfield',
+    '#name' => 'appartment_adress',
+    '#default_value' => !empty($_SESSION['physical_person_borrower']['appartment_adress']) ? $_SESSION['physical_person_borrower']['appartment_adress'] : '',
+    '#attributes' =>array('placeholder' => t('Квартира'), 'class' => array('medium', 'ufield', 'numeric')),
+  );
+
+  $form['city_adress'] = array(
+    '#type' => 'textfield',
+    '#name' => 'city_adress',
+    '#default_value' => !empty($_SESSION['physical_person_borrower']['city_adress']) ? $_SESSION['physical_person_borrower']['city_adress'] : '',
+    '#attributes' => array('class' => array('ufield')),
+  );
+
+  $form['region'] = array(
+    '#type' => 'textfield',
+    '#name' => 'region',
+    '#default_value' => !empty($_SESSION['physical_person_borrower']['region']) ? $_SESSION['physical_person_borrower']['region'] : '',
+    '#attributes' => array('class' => array('ufield')),
+  );
+
+  $form['country_list'] = array(
+    '#type' => 'select',
+    '#name' => 'country_list',
+    // '#default_value' => variable_get('countries_example_default_country_1', ''),
+    '#options' => array('' => t("Country"), 'UA' => t('Ukraine'), 'RU' => t('Russia'), 'dash' => '------------------------') + $enabled_country_list,
+    '#default_value' => 'RU',
+    '#attributes' => array('disabled' => TRUE),
+  );
+
+  $form['postcode'] = array(
+    '#type' => 'textfield',
+    '#name' => 'postcode',
+    '#default_value' => !empty($_SESSION['physical_person_borrower']['postcode']) ? $_SESSION['physical_person_borrower']['postcode'] : '',
+    '#attributes' => array('class' => array('ufield', 'numeric')),
+  );
+
+  $form['reg_street_name'] = array(
+	  '#type' => 'textfield',
+	  '#name' => 'reg_street_name',
+	  '#default_value' => !empty($_SESSION['physical_person_borrower']['reg_street_name']) ? $_SESSION['physical_person_borrower']['reg_street_name'] : '',
+	  '#attributes' =>array('placeholder' => t('Название улицы'), 'class' => array('large', 'ufield')),
+	);
+
+	$form['reg_house_number'] = array(
+    '#type' => 'textfield',
+    '#name' => 'reg_house_number',
+    '#default_value' => !empty($_SESSION['physical_person_borrower']['reg_house_number']) ? $_SESSION['physical_person_borrower']['reg_house_number'] : '',
+    '#attributes' =>array('placeholder' => t('Номер дома'), 'class' => array('small', 'ufield', 'numeric')),
+  );
+
+	$form['reg_housing'] = array(
+	  '#type' => 'textfield',
+	  '#name' => 'reg_housing',
+	  '#default_value' => !empty($_SESSION['physical_person_borrower']['reg_housing']) ? $_SESSION['physical_person_borrower']['reg_housing'] : '',
+	  '#attributes' =>array('placeholder' => t('Корпус'), 'class' => array('medium', 'numeric')),
+	);
+
+  $form['reg_appartment_adress'] = array(
+    '#type' => 'textfield',
+    '#name' => 'reg_appartment_adress',
+    '#default_value' => !empty($_SESSION['physical_person_borrower']['reg_appartment_adress']) ? $_SESSION['physical_person_borrower']['reg_appartment_adress'] : '',
+    '#attributes' =>array('placeholder' => t('Квартира'), 'class' => array('medium', 'ufield', 'numeric')),
+  );
+
+  $form['reg_city_adress'] = array(
+    '#type' => 'textfield',
+    '#name' => 'reg_city_adress',
+    '#default_value' => !empty($_SESSION['physical_person_borrower']['reg_city_adress']) ? $_SESSION['physical_person_borrower']['reg_city_adress'] : '',
+    '#attributes' => array('class' => array('ufield')),
+  );
+
+  $form['reg_region'] = array(
+    '#type' => 'textfield',
+    '#name' => 'reg_region',
+    '#default_value' => !empty($_SESSION['physical_person_borrower']['reg_region']) ? $_SESSION['physical_person_borrower']['reg_region'] : '',
+    '#attributes' => array('class' => array('ufield')),
+  );
+
+  $form['reg_country_list'] = array(
+    '#type' => 'select',
+    '#name' => 'reg_country_list',
+    '#options' => array('' => t("Country"), 'UA' => t('Ukraine'), 'RU' => t('Russia'), 'dash' => '------------------------') + $enabled_country_list,
+    '#default_value' => 'RU',
+    '#attributes' => array('disabled' => TRUE),
+  );
+
+  $form['reg_postcode'] = array(
+    '#type' => 'textfield',
+    '#name' => 'reg_postcode',
+    '#default_value' => !empty($_SESSION['physical_person_borrower']['reg_postcode']) ? $_SESSION['physical_person_borrower']['reg_postcode'] : '',
+    '#attributes' => array('class' => array('ufield', 'numeric')),
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#name' => 'btn_submit_user_data',
+    '#value' => t('Продолжить'),
+    '#attributes' => array('class' => array('move-up-btn')),
+    '#ajax' => array(
+      'wrapper' => 'allrise-create-loan-wrapper',
+      'callback' => 'create_borrower_first_step_callback',
+      'progress' => array('type' => 'none'),
+    ),
+  );
+
+  $form['step_back'] = array(
+  	'#name' => 'step-back-button',
+    '#type' => 'submit',
+    '#value' => t('Back'),
+    '#attributes' => array('class' => array('form-cancel', 'move-up-btn')),
+    // '#submit' => array('create_borrower_first_step_callback'),
+    '#ajax' => array(
+      'wrapper' => 'allrise-create-loan-wrapper',
+      'callback' => 'create_borrower_first_back_step_callback',
+      'progress' => array('type' => 'none'),
+    ),
+  );
+
+  return $form;
+}
+
+function upload_passport_attach_data($form, $form_state){
+
+  $file = file_save_upload('allfiles', array('file_validate_extensions' => array('png gif jpg jpeg')), "public://",$replace = FILE_EXISTS_REPLACE);
+  if ($file)
+  {
+    $file->status=FILE_STATUS_PERMANENT;
+    file_save($file);
+    $fileSize = format_size($file->filesize);
+
+    //update profile_user_foto in users
+    global $user;
+    $account = $user;
+
+    $imgData = "<span class='file-title'>{$file->filename}</span>" ." "."<span class='file-size'>({$fileSize})</span>" . " "."<span class ='file-delete'>".l(t('x'), 'loan-attached-file/nojs/'.$file->fid.'/3', array('attributes' => array('class' => array('use-ajax','deleteAttached', 'deleteAttached-'.$file->fid))))."</span>";
+    $uploadedFile= "<div class ='attachedFile attachedFile-{$file->fid}'>{$imgData}</div>";
+
+    $_SESSION['create_loan']['passport_img_data'][$file->fid] = $file->fid;
+
+  }
+  else {
+    drupal_set_message('No file uploaded.');
+  }
+
+  ctools_include('ajax');
+  $commands = array();
+  $commands[] = ajax_command_append('#allrise_attached_img #im-area',$uploadedFile );
+  return array('#type' => 'ajax', '#commands' => $commands);
+  exit();
+}
+
+function upload_licence_attach_data($form, $form_state){
+
+  $file = file_save_upload('second_section', array('file_validate_extensions' => array('png gif jpg jpeg')), "public://",$replace = FILE_EXISTS_REPLACE);
+  if ($file)
+  {
+    $file->status=FILE_STATUS_PERMANENT;
+    file_save($file);
+    $fileSize = format_size($file->filesize);
+
+    //update profile_user_foto in users
+    global $user;
+    $account = $user;
+
+    $imgData = "<span class='file-title'>{$file->filename}</span>" ." "."<span class='file-size'>({$fileSize})</span>" . " "."<span class ='file-delete'>".l(t('x'), 'loan-attached-file/nojs/'.$file->fid.'/4', array('attributes' => array('class' => array('use-ajax','deleteAttached', 'deleteAttached-'.$file->fid))))."</span>";
+    $uploadedFile= "<div class ='attachedFile attachedFile-{$file->fid}'>{$imgData}</div>";
+
+    $_SESSION['create_loan']['licence_img_data'][$file->fid] = $file->fid;
+
+  }
+  else {
+    drupal_set_message('No file uploaded.');
+  }
+
+  ctools_include('ajax');
+  $commands = array();
+  $commands[] = ajax_command_append('#second_section_attached #next-area',$uploadedFile );
+  return array('#type' => 'ajax', '#commands' => $commands);
+  exit();
+}
+
+function create_borrower_first_back_step_callback($form, &$form_state){
+
+  switch ($form_state['values']['borrower_type']) {
+    case '0':
+      // $_SESSION['physical_person_borrower']
+      $_SESSION['physical_person_borrower']['surname'] = $form_state['values']['surname'];
+      $_SESSION['physical_person_borrower']['name'] = $form_state['values']['name'];
+      $_SESSION['physical_person_borrower']['patronymic'] = $form_state['values']['patronymic'];
+      $_SESSION['physical_person_borrower']['gender'] = $form_state['values']['gender'];
+      $_SESSION['physical_person_borrower']['birthplace_country'] = $form_state['values']['birthplace_country'];
+      $_SESSION['physical_person_borrower']['birthplace'] = $form_state['values']['birthplace'];
+      $_SESSION['physical_person_borrower']['birthdate'] = $form_state['values']['birthdate'];
+      $_SESSION['physical_person_borrower']['identification_number'] = $form_state['values']['identification_number'];
+      $_SESSION['physical_person_borrower']['passport_series'] = $form_state['values']['passport_series'];
+      $_SESSION['physical_person_borrower']['passport_data'] = $form_state['values']['passport_data'];
+      $_SESSION['physical_person_borrower']['issue_date'] = $form_state['values']['issue_date'];
+      $_SESSION['physical_person_borrower']['reg_place_check'] = $form_state['values']['reg_place_check'];
+
+      $_SESSION['physical_person_borrower']['reg_street_name'] = $form_state['values']['reg_street_name'];
+      $_SESSION['physical_person_borrower']['reg_house_number'] = $form_state['values']['reg_house_number'];
+      $_SESSION['physical_person_borrower']['reg_housing'] = $form_state['values']['reg_housing'];
+      $_SESSION['physical_person_borrower']['reg_appartment_adress'] = $form_state['values']['reg_appartment_adress'];
+      $_SESSION['physical_person_borrower']['reg_city_adress'] = $form_state['values']['reg_city_adress'];
+      $_SESSION['physical_person_borrower']['reg_region'] = $form_state['values']['reg_region'];
+      $_SESSION['physical_person_borrower']['reg_country_list'] = $form_state['values']['reg_country_list'];
+      $_SESSION['physical_person_borrower']['reg_postcode'] = $form_state['values']['reg_postcode'];
+      $_SESSION['physical_person_borrower']['license_number'] = $form_state['values']['license_number'];
+
+      if ($form_state['values']['reg_place_check'] == 0) {
+        $_SESSION['physical_person_borrower']['street_name'] = $form_state['values']['street_name'];
+        $_SESSION['physical_person_borrower']['house_number'] = $form_state['values']['house_number'];
+        $_SESSION['physical_person_borrower']['housing'] = $form_state['values']['housing'];
+        $_SESSION['physical_person_borrower']['appartment_adress'] = $form_state['values']['appartment_adress'];
+        $_SESSION['physical_person_borrower']['city_adress'] = $form_state['values']['city_adress'];
+        $_SESSION['physical_person_borrower']['region'] = $form_state['values']['region'];
+        $_SESSION['physical_person_borrower']['country_list'] = $form_state['values']['country_list'];
+        $_SESSION['physical_person_borrower']['postcode'] = $form_state['values']['postcode'];
+      }
+
+      break;
+
+    case '1':
+      $_SESSION['legal_person_borrower']['surname'] = $form_state['values']['surname'];
+      $_SESSION['legal_person_borrower']['name'] = $form_state['values']['name'];
+      $_SESSION['legal_person_borrower']['patronymic'] = $form_state['values']['patronymic'];
+      $_SESSION['legal_person_borrower']['position'] = $form_state['values']['position'];
+      $_SESSION['legal_person_borrower']['basis'] = $form_state['values']['basis'];
+      $_SESSION['legal_person_borrower']['corp_name'] = $form_state['values']['corp_name'];
+      $_SESSION['legal_person_borrower']['corp_orgn'] = $form_state['values']['corp_orgn'];
+      $_SESSION['legal_person_borrower']['corp_inn'] = $form_state['values']['corp_inn'];
+      $_SESSION['legal_person_borrower']['street_name'] = $form_state['values']['street_name'];
+      $_SESSION['legal_person_borrower']['house_number'] = $form_state['values']['house_number'];
+      $_SESSION['legal_person_borrower']['housing'] = $form_state['values']['housing'];
+      $_SESSION['legal_person_borrower']['appartment_adress'] = $form_state['values']['appartment_adress'];
+      $_SESSION['legal_person_borrower']['city_adress'] = $form_state['values']['city_adress'];
+      $_SESSION['legal_person_borrower']['region'] = $form_state['values']['region'];
+      $_SESSION['legal_person_borrower']['country_list'] = $form_state['values']['country_list'];
+      $_SESSION['legal_person_borrower']['postcode'] = $form_state['values']['postcode'];
+      $_SESSION['legal_person_borrower']['corp_mfo'] = $form_state['values']['corp_mfo'];
+      $_SESSION['legal_person_borrower']['bank'] = $form_state['values']['bank'];
+      $_SESSION['legal_person_borrower']['bank_inn'] = $form_state['values']['bank_inn'];
+      $_SESSION['legal_person_borrower']['bank_account'] = $form_state['values']['bank_account'];
+      $_SESSION['legal_person_borrower']['account_number'] = $form_state['values']['account_number'];
+      $_SESSION['legal_person_borrower']['reg_place_check'] = $form_state['values']['reg_place_check'];
+
+      break;
+  }
+
+  $_SESSION['create_loan']['borrower_type'] = $form_state['values']['borrower_type'];
+
+
+ 	$form = drupal_get_form('loan_car_data_form');
+  $output = drupal_render($form);
+  $commands[] = ajax_command_html('#allrise-create-loan-wrapper', $output);
+
+  return array('#type' => 'ajax', '#commands' => $commands);
+}
+
+function type_physical_person_callback_data($form, &$form_state){
+
+  unset($_SESSION['legal_person_borrower']);
+ 	$form = drupal_get_form('create_borrower_first_step_form');
+  $output = drupal_render($form);
+  $commands[] = ajax_command_html('#allrise-create-loan-wrapper', $output);
+
+  return array('#type' => 'ajax', '#commands' => $commands);
+}
+
+function type_legal_person_callback_data($form, &$form_state){
+
+  unset($_SESSION['physical_person_borrower']);
+ 	$form = drupal_get_form('create_borrower_first_step_legal_form');
+  $output = drupal_render($form);
+  $commands[] = ajax_command_html('#allrise-create-loan-wrapper', $output);
+
+  return array('#type' => 'ajax', '#commands' => $commands);
+}
+
+function create_borrower_first_step_callback($form, &$form_state){
+
+	switch ($form_state['values']['borrower_type']) {
+		case '0':
+			// $_SESSION['physical_person_borrower']
+			$_SESSION['physical_person_borrower']['surname'] = $form_state['values']['surname'];
+			$_SESSION['physical_person_borrower']['name'] = $form_state['values']['name'];
+			$_SESSION['physical_person_borrower']['patronymic'] = $form_state['values']['patronymic'];
+			$_SESSION['physical_person_borrower']['gender'] = $form_state['values']['gender'];
+			$_SESSION['physical_person_borrower']['birthplace_country'] = $form_state['values']['birthplace_country'];
+			$_SESSION['physical_person_borrower']['birthplace'] = $form_state['values']['birthplace'];
+			$_SESSION['physical_person_borrower']['birthdate'] = $form_state['values']['birthdate'];
+			$_SESSION['physical_person_borrower']['identification_number'] = $form_state['values']['identification_number'];
+			$_SESSION['physical_person_borrower']['passport_series'] = $form_state['values']['passport_series'];
+			$_SESSION['physical_person_borrower']['passport_data'] = $form_state['values']['passport_data'];
+			$_SESSION['physical_person_borrower']['issue_date'] = $form_state['values']['issue_date'];
+			$_SESSION['physical_person_borrower']['reg_place_check'] = $form_state['values']['reg_place_check'];
+
+      $_SESSION['physical_person_borrower']['reg_street_name'] = $form_state['values']['reg_street_name'];
+      $_SESSION['physical_person_borrower']['reg_house_number'] = $form_state['values']['reg_house_number'];
+      $_SESSION['physical_person_borrower']['reg_housing'] = $form_state['values']['reg_housing'];
+      $_SESSION['physical_person_borrower']['reg_appartment_adress'] = $form_state['values']['reg_appartment_adress'];
+      $_SESSION['physical_person_borrower']['reg_city_adress'] = $form_state['values']['reg_city_adress'];
+      $_SESSION['physical_person_borrower']['reg_region'] = $form_state['values']['reg_region'];
+      $_SESSION['physical_person_borrower']['reg_country_list'] = $form_state['values']['reg_country_list'];
+      $_SESSION['physical_person_borrower']['reg_postcode'] = $form_state['values']['reg_postcode'];
+			$_SESSION['physical_person_borrower']['license_number'] = $form_state['values']['license_number'];
+
+			if ($form_state['values']['reg_place_check'] == 0) {
+        $_SESSION['physical_person_borrower']['street_name'] = $form_state['values']['street_name'];
+        $_SESSION['physical_person_borrower']['house_number'] = $form_state['values']['house_number'];
+        $_SESSION['physical_person_borrower']['housing'] = $form_state['values']['housing'];
+        $_SESSION['physical_person_borrower']['appartment_adress'] = $form_state['values']['appartment_adress'];
+        $_SESSION['physical_person_borrower']['city_adress'] = $form_state['values']['city_adress'];
+        $_SESSION['physical_person_borrower']['region'] = $form_state['values']['region'];
+        $_SESSION['physical_person_borrower']['country_list'] = $form_state['values']['country_list'];
+        $_SESSION['physical_person_borrower']['postcode'] = $form_state['values']['postcode'];
+			}
+
+			break;
+
+		case '1':
+			$_SESSION['legal_person_borrower']['surname'] = $form_state['values']['surname'];
+			$_SESSION['legal_person_borrower']['name'] = $form_state['values']['name'];
+			$_SESSION['legal_person_borrower']['patronymic'] = $form_state['values']['patronymic'];
+			$_SESSION['legal_person_borrower']['position'] = $form_state['values']['position'];
+			$_SESSION['legal_person_borrower']['basis'] = $form_state['values']['basis'];
+			$_SESSION['legal_person_borrower']['corp_name'] = $form_state['values']['corp_name'];
+			$_SESSION['legal_person_borrower']['corp_orgn'] = $form_state['values']['corp_orgn'];
+			$_SESSION['legal_person_borrower']['corp_inn'] = $form_state['values']['corp_inn'];
+			$_SESSION['legal_person_borrower']['street_name'] = $form_state['values']['street_name'];
+			$_SESSION['legal_person_borrower']['house_number'] = $form_state['values']['house_number'];
+			$_SESSION['legal_person_borrower']['housing'] = $form_state['values']['housing'];
+			$_SESSION['legal_person_borrower']['appartment_adress'] = $form_state['values']['appartment_adress'];
+			$_SESSION['legal_person_borrower']['city_adress'] = $form_state['values']['city_adress'];
+			$_SESSION['legal_person_borrower']['region'] = $form_state['values']['region'];
+			$_SESSION['legal_person_borrower']['country_list'] = $form_state['values']['country_list'];
+			$_SESSION['legal_person_borrower']['postcode'] = $form_state['values']['postcode'];
+			$_SESSION['legal_person_borrower']['corp_mfo'] = $form_state['values']['corp_mfo'];
+			$_SESSION['legal_person_borrower']['bank'] = $form_state['values']['bank'];
+			$_SESSION['legal_person_borrower']['bank_inn'] = $form_state['values']['bank_inn'];
+			$_SESSION['legal_person_borrower']['bank_account'] = $form_state['values']['bank_account'];
+			$_SESSION['legal_person_borrower']['account_number'] = $form_state['values']['account_number'];
+      $_SESSION['legal_person_borrower']['reg_place_check'] = $form_state['values']['reg_place_check'];
+
+			break;
+	}
+
+	$_SESSION['create_loan']['borrower_type'] = $form_state['values']['borrower_type'];
+
+  $form = drupal_get_form('create_borrower_second_step_form');
+  $output = drupal_render($form);
+  $commands[] = ajax_command_html('#allrise-create-loan-wrapper', $output);
+
+  return array('#type' => 'ajax', '#commands' => $commands);
+}
+
+/*4 step. borrower register data. legal person register step1*/
+
+function create_borrower_first_step_legal_form($form, &$form_state) {
+
+  $form['#attributes']['class'][] = 'allrise-borrower_register-step1-wrapper';
+
+  $form['borrower_type'] = array(
+  	'#name' => 'borrower_type',
+    '#type' => 'value',
+   	'#value' => '1', // 0 physical person. 1 legal person
+  );
+
+  $form['type_physical_person'] = array(
+  	'#name' => 'type_physical_person',
+    '#type' => 'button',
+    '#value' => t('Physical person'),
+    // '#attributes' => array('class' => array('blue')),
+    '#ajax' => array(
+      'wrapper' => 'allrise-create-loan-wrapper',
+      'callback' => 'type_physical_person_callback_data',
+      'progress' => array('type' => 'none'),
+      // 'effect' => 'slide',
+      ),
+  );
+
+  $form['type_legal_person'] = array(
+  	'#name' => 'type_legal_person',
+    '#type' => 'value',
+    '#value' => t('Legal person'),
+    '#attributes' => array('class' => array('blue')),
+  );
+
+  $form['surname'] = array(
+    '#type' => 'textfield',
+    '#name'=> "surname",
+    '#default_value' => !empty($_SESSION['legal_person_borrower']['surname']) ? $_SESSION['legal_person_borrower']['surname'] : '',
+    '#attributes' => array('class' => array('ufield')),
+  );
+
+  $form['name'] = array(
+    '#type' => 'textfield',
+    '#name' => 'name',
+    // '#required' => TRUE,
+    '#default_value' => !empty($_SESSION['legal_person_borrower']['name']) ? $_SESSION['legal_person_borrower']['name'] : '',
+    '#attributes' => array('class' => array('ufield')),
+  );
+
+  $form['patronymic'] = array(
+    '#type' => 'textfield',
+    '#name' => 'patronymic',
+    '#default_value' => !empty($_SESSION['legal_person_borrower']['patronymic']) ? $_SESSION['legal_person_borrower']['patronymic'] : '' ,
+    '#attributes' => array('class' => array('ufield')),
+  );
+
+  $form['position'] = array(
+    '#type' => 'textfield',
+    '#name' => 'position',
+    '#default_value' => !empty($_SESSION['legal_person_borrower']['position']) ? $_SESSION['legal_person_borrower']['position'] : '',
+    '#attributes' => array('class' => array('ufield')),
+  );
+
+  $form['basis'] = array(
+    '#type' => 'textfield',
+    '#name' => 'basis',
+    '#default_value' => !empty($_SESSION['legal_person_borrower']['basis']) ? $_SESSION['legal_person_borrower']['basis'] : '',
+    '#attributes' => array('class' => array('ufield')),
+  );
+
+  $form['corp_name'] = array(
+    '#type' => 'textfield',
+    '#name' => 'corp_name',
+    '#default_value' => !empty($_SESSION['legal_person_borrower']['corp_name']) ? $_SESSION['legal_person_borrower']['corp_name'] : '',
+    '#attributes' => array('class' => array('ufield')),
+  );
+
+  $form['corp_orgn'] = array(
+    '#type' => 'textfield',
+    '#name' => 'corp_orgn',
+    '#default_value' => !empty($_SESSION['legal_person_borrower']['corp_orgn']) ? $_SESSION['legal_person_borrower']['corp_orgn'] : '',
+  );
+
+  $form['corp_inn'] = array(
+    '#type' => 'textfield',
+    '#name' => 'corp_inn',
+    '#default_value' => !empty($_SESSION['legal_person_borrower']['corp_inn']) ? $_SESSION['legal_person_borrower']['corp_inn'] : '',
+    '#attributes' => array('class' => array('ufield')),
+  );
+
+  $form['street_name'] = array(
+    '#type' => 'textfield',
+    '#name' => 'street_name',
+    '#default_value' => !empty($_SESSION['legal_person_borrower']['street_name']) ? $_SESSION['legal_person_borrower']['street_name'] : '',
+    '#attributes' => array('class' => array('large', 'ufield')),
+  );
+
+  $form['house_number'] = array(
+    '#type' => 'textfield',
+    '#name' => 'house_number',
+    '#default_value' => !empty($_SESSION['legal_person_borrower']['house_number']) ? $_SESSION['legal_person_borrower']['house_number'] : '',
+    '#attributes' => array('class' => array('small', 'ufield', 'numeric')),
+  );
+
+  $form['housing'] = array(
+    '#type' => 'textfield',
+    '#name' => 'housing',
+    '#default_value' => !empty($_SESSION['legal_person_borrower']['housing']) ? $_SESSION['legal_person_borrower']['housing'] : '',
+    '#attributes' => array('class' => array('medium', 'numeric')),
+  );
+
+  $form['appartment_adress'] = array(
+    '#type' => 'textfield',
+    '#name' => 'appartment_adress',
+    '#default_value' => !empty($_SESSION['legal_person_borrower']['appartment_adress']) ? $_SESSION['legal_person_borrower']['appartment_adress'] : '',
+    '#attributes' => array('class' => array('medium', 'numeric')),
+  );
+
+  $form['city_adress'] = array(
+    '#type' => 'textfield',
+    '#name' => 'city_adress',
+    '#default_value' => !empty($_SESSION['legal_person_borrower']['city_adress']) ? $_SESSION['legal_person_borrower']['city_adress'] : '',
+    '#attributes' => array('class' => array('ufield')),
+  );
+
+  $form['region'] = array(
+    '#type' => 'textfield',
+    '#name' => 'region',
+    '#default_value' => !empty($_SESSION['legal_person_borrower']['region']) ? $_SESSION['legal_person_borrower']['region'] : '',
+    '#attributes' => array('class' => array('ufield')),
+  );
+
+  $enabled_country_list = countries_get_countries('name', array('enabled' => COUNTRIES_ENABLED));
+  unset($enabled_country_list['UA'],$enabled_country_list['RU']);
+  $form['country_list'] = array(
+    '#type' => 'select',
+    '#name' => 'country_list',
+    '#default_value' => 'RU',
+    '#attributes' => array('disabled' => TRUE),
+    '#options' => array('' => t("Country"), 'UA' => t('Ukraine'), 'RU' => t('Russia'), 'dash' => '------------------------') + $enabled_country_list,
+  );
+
+  $form['postcode'] = array(
+    '#type' => 'textfield',
+    '#name' => 'postcode',
+    '#default_value' => !empty($_SESSION['legal_person_borrower']['postcode']) ? $_SESSION['legal_person_borrower']['postcode'] : '',
+    '#attributes' => array('class' => array('ufield', 'numeric')),
+  );
+
+  $form['corp_mfo'] = array(
+    '#type' => 'textfield',
+    '#name' => 'corp_mfo',
+    '#default_value' => !empty($_SESSION['legal_person_borrower']['corp_mfo']) ? $_SESSION['legal_person_borrower']['corp_mfo'] : '',
+    '#attributes' => array('class' => array('ufield')),
+  );
+
+  $form['bank'] = array(
+    '#type' => 'textfield',
+    '#name' => 'bank',
+    '#default_value' => !empty($_SESSION['legal_person_borrower']['bank']) ? $_SESSION['legal_person_borrower']['bank'] : '',
+    '#attributes' => array('class' => array('ufield')),
+  );
+
+  $form['bank_inn'] = array(
+    '#type' => 'textfield',
+    '#name' => 'bank_inn',
+    '#default_value' => !empty($_SESSION['legal_person_borrower']['bank_inn']) ? $_SESSION['legal_person_borrower']['bank_inn'] : '',
+    '#attributes' => array('class' => array('ufield')),
+  );
+
+  $form['bank_account'] = array(
+    '#type' => 'textfield',
+    '#name' => 'bank_account',
+    '#default_value' => !empty($_SESSION['legal_person_borrower']['bank_account']) ? $_SESSION['legal_person_borrower']['bank_account'] : '',
+    '#attributes' => array('class' => array('ufield')),
+  );
+
+  $form['account_number'] = array(
+    '#type' => 'textfield',
+    '#name' => 'account_number',
+    '#default_value' => !empty($_SESSION['legal_person_borrower']['account_number']) ? $_SESSION['legal_person_borrower']['account_number'] : '' ,
+    '#attributes' => array('class' => array('ufield')),
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#name' => 'btn_submit_user_data',
+    '#attributes' => array('class' => array('move-up-btn')),
+    '#value' => t('Продолжить'),
+    '#ajax' => array(
+      'wrapper' => 'allrise-create-loan-wrapper',
+      'callback' => 'create_borrower_first_step_callback',
+      'progress' => array('type' => 'none'),
+    ),
+  );
+
+  $form['step_back'] = array(
+  	'#name' => 'step-back-button',
+    '#type' => 'submit',
+    '#value' => t('Back'),
+    '#attributes' => array('class' => array('form-cancel', 'move-up-btn')),
+    // '#submit' => array('create_borrower_first_step_callback'),
+    '#ajax' => array(
+      'wrapper' => 'allrise-create-loan-wrapper',
+      'callback' => 'create_borrower_first_back_step_callback',
+      'progress' => array('type' => 'none'),
+    ),
+  );
+  return $form;
+}
+
+
+/*5 step. borrower register data. register step2*/
+
+function create_borrower_second_step_form($form, &$form_state) {
+
+  $form['#attributes']['class'][] = 'allrise-borrower_register-step1-wrapper form_check';
+
+  $form['email'] = array(
+    '#type' => 'textfield',
+    '#default_value' => !empty($_SESSION['create_loan']['email']) ? $_SESSION['create_loan']['email'] : '',
+    '#attributes' =>array('placeholder' => t('Введите ваш e-mail'), 'class' => array('mailfield', 'rfield') ),
+  );
+
+  $form['phone_code'] = array(
+    '#type' => 'textfield',
+    '#name'=> 'phone_code',
+    // '#default_value' => !empty($_SESSION['create_loan']['phone_code']) ? $_SESSION['create_loan']['phone_code'] : '7',
+    '#attributes' =>array('placeholder' => t('Код страны'), 'class' => array('inputs', 'rfield', 'large', 'ru'), 'type' => 'number'),
+  );
+
+  $form['country_code'] = array(
+    '#type' => 'select',
+    '#default_value' => 'ru',
+    '#options' => array('ru' => t('Россия'), 'ua' => t('Украина')),
+    '#attributes' => array('class' => array('small','selecter')),
+  );
+
+  $form['work_phone_code'] = array(
+    '#type' => 'textfield',
+    '#name'=> 'work_phone_code',
+    '#default_value' => !empty($_SESSION['create_loan']['work_phone_code']) ? $_SESSION['create_loan']['phone_code'] : '',
+    '#attributes' =>array('placeholder' => t('Код страны'), 'class' => array('small', 'nfield')),
+  );
+
+  $form['work_phone_num'] = array(
+    '#type' => 'textfield',
+    '#name'=> 'work_phone_num',
+    '#default_value' => !empty($_SESSION['create_loan']['work_phone_num']) ? $_SESSION['create_loan']['phone_num'] : '',
+    '#attributes' =>array('placeholder' => t('Номер телефона'), 'class' => array('large', 'nfield')),
+  );
+
+  $form['secret_word'] = array(
+    '#type' => 'textfield',
+    '#name'=> 'secret_word',
+    '#default_value' => !empty($_SESSION['create_loan']['secret_word']) ? $_SESSION['create_loan']['secret_word'] : '',
+    '#attributes' =>array('placeholder' => t('Ваше секретное кодовое слово'), 'class' => array('rfield', 'nfield')),
+  );
+
+  $form['password'] = array(
+    '#type' => 'password',
+    '#name'=> 'password',
+    '#attributes' =>array('placeholder' => t('Пароль'), 'class' => array('rfield')),
+  );
+
+  $form['password_confirm'] = array(
+    '#type' => 'password',
+    '#name'=> 'password_confirm',
+    '#attributes' =>array('placeholder' => t('Повторите пароль'), 'class' => array('rfield')),
+  );
+
+  $form['partner_code'] = array(
+    '#type' => 'textfield',
+    '#attributes' =>array('placeholder' => t('Код партнера(не обязательно)')),
+    // '#field_prefix'=> t("Код партнера(не обязательно)"),
+    '#default_value' => !empty($_SESSION['partner']['partner_code']) ? $_SESSION['partner']['partner_code'] : '',
+  );
+
+  $form['user_agreement'] = array(
+    // '#title'=> t('Пользовательское соглашение'),
+    '#type' => 'textarea',
+    '#disabled' => TRUE,
+    '#rows' => 13,
+    '#attributes' => array('class' => array('information')),
+    '#default_value' => allrise_register_user_agreement_text(),
+  );
+
+$form['confirmation1'] = array(
+	'#name' => 'confirmation1',
+  '#type' => 'checkbox',
+  '#title' => t('I confirm the accuracy of this data by me'),
+);
+
+$form['confirmation2'] = array(
+	'#name' => 'confirmation2',
+  '#type' => 'checkbox',
+  '#title' => t('I confirm agreement and accept the obligation to fulfill the contract'),
+);
+
+$form['confirmation3'] = array(
+	'#name' => 'confirmation3',
+  '#type' => 'checkbox',
+  '#title' => t('By signing the contract with the help of SMS I agree that sending SMS is equivalent to my signature'),
+);
+
+$form['submit'] = array(
+  '#type' => 'submit',
+  '#name' => 'create-user-and-loan',
+  '#value' => t('Продолжить'),
+  '#ajax' => array(
+    'wrapper' => 'allrise-create-loan-wrapper',
+    'callback' => 'create_borrower_second_step_callback',
+    'progress' => array('type' => 'none'),
+  ),
+  '#attributes' => array(
+        'class' => array('ctools-modal-ctools-message-style', 'ctools-use-modal', 'btnsubmit'),
+  ),
+);
+
+$form['step_back'] = array(
+	'#name' => 'step-back-button',
+  '#type' => 'submit',
+  '#value' => t('Back'),
+  '#attributes' => array('class' => array('form-cancel', 'move-up-btn')),
+  '#ajax' => array(
+    'wrapper' => 'allrise-create-loan-wrapper',
+    'callback' => 'create_borrower_second__back_step_callback',
+    'progress' => array('type' => 'none'),
+  ),
+);
+
+  return $form;
+}
+
+function create_borrower_second__back_step_callback($form, &$form_state){
+
+	$_SESSION['create_loan']['email'] = $form_state['values']['email'];
+	// $_SESSION['create_loan']['phone_code'] = $form_state['values']['phone_code'];
+	$_SESSION['create_loan']['phone_num'] = $form_state['values']['phone_num'];
+	$_SESSION['create_loan']['secret_word'] = $form_state['values']['secret_word'];
+  if (!empty($_GET['partner_code']) || !empty($form_state['values']['partner_code'])) {
+    if(!empty($form_state['values']['partner_code'])){
+      $_SESSION['partner']['partner_code'] = $form_state['values']['partner_code'];
+    }
+  }
+
+	switch ($_SESSION['create_loan']['borrower_type']) {
+		case '0':
+			$form = drupal_get_form('create_borrower_first_step_form');
+			break;
+
+		case '1':
+			$form = drupal_get_form('create_borrower_first_step_legal_form');
+			break;
+	}
+
+  $output = drupal_render($form);
+  $commands[] = ajax_command_html('#allrise-create-loan-wrapper', $output);
+
+  return array('#type' => 'ajax', '#commands' => $commands);
+}
+
+function create_borrower_second_step_callback($form, &$form_state){
+	global $user;
+	global $language;
+	$_SESSION['create_loan']['email'] = $form_state['values']['email'];
+	$_SESSION['create_loan']['phone_num'] = $form_state['values']['phone_num'];
+	$_SESSION['create_loan']['secret_word'] = $form_state['values']['secret_word'];
+	$_SESSION['create_loan']['password'] = $form_state['values']['password_confirm'];
+  if (!empty($_GET['partner_code']) || !empty($form_state['values']['partner_code'])) {
+    if(!empty($form_state['values']['partner_code'])){
+      $_SESSION['partner']['partner_code'] = $form_state['values']['partner_code'];
+    }
+  }
+
+	$_SESSION['popup_parent_page'] = 'create-loan-new-user';
+
+  $commands = array();
+  $form1 = drupal_get_form('allrise_code_sms_confirm_form');
+  $commands[] = ctools_modal_command_display(t('Confirm transaction'), $form1);
+
+  print ajax_render($commands);
+  exit;
+}
+
+function allrise_create_borrower_steps_content($ajax, $step = 0){
+
+  if ($step == '1'){
+    $form_stage = drupal_get_form('allrise_create_loan_form');
+  }
+  if ($step == '2'){
+    $form_stage = drupal_get_form('loan_car_parameters_form');
+  }
+  if ($step == '3'){
+    $form_stage = drupal_get_form('loan_car_data_form');
+  }
+  if ($step == '4'){
+    if (!empty($_SESSION['create_loan']['borrower_type'])) {
+      switch ($_SESSION['create_loan']['borrower_type']) {
+        case '0':
+          $form_stage = drupal_get_form('create_borrower_first_step_form');
+          break;
+
+        case '1':
+          $form_stage = drupal_get_form('create_borrower_first_step_legal_form');
+          break;
+      }
+    }
+    else{
+      $form_stage = drupal_get_form('create_borrower_first_step_legal_form');
+    }
+  }
+
+  $commands[] = ajax_command_html('#allrise-create-loan-wrapper', render($form_stage));
+  return array('#type' => 'ajax', '#commands' => $commands);
+}
