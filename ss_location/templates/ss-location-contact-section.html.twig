@@ -1,0 +1,81 @@
+<div id="contact" class="contacts clearfix">
+  <div class="content">
+    <h2>{{ title }}</h2>
+    <div class="opening-hours">
+      {% if services|length > 1 %}
+        <select class="services">
+          {% for code, service in services %}
+            <option value="{{ code }}">{{ service }}</option>
+          {% endfor %}
+        </select>
+      {% endif %}
+      {% for class, hours in schedule %}
+        <div class="{{ class }}-wrapper additional-services-wrapper">
+          {% for i, rows in hours.time %}
+            <div class="opening-hours-col">
+              <div class="opening-hours-cell header-cell">
+                {{ hours.header[i] }}
+              </div>
+              {% for cell in rows %}
+                <div class="opening-hours-cell">
+                  {{ cell }}
+                  {% if cell is empty %}
+                    <span class="empty-field">-</span>
+                  {% endif %}
+                </div>
+              {% endfor %}
+            </div>
+          {% endfor %}
+        </div>
+      {% endfor %}
+    </div>
+    <div class="address">
+      {% for add in address|slice(0, 1) %}
+        {% if add.subtitle is not empty %}
+          <div class="sub-title">{{ add.subtitle }}</div>
+        {% endif %}
+        {% if add.address is not empty %}
+          <div class="post-address">{{ add.address|raw }}</div>
+        {% endif %}
+        {% if add.phone is not empty %}
+          <div class="phone"><a href="tel:{{ add.phone }}">{{ add.phone }}</a></div>
+        {% endif %}
+        {% if add.email is not empty %}
+          <div class="email"><a href="mailto:{{ add.email }}">{{ add.email }}</a></div>
+        {% endif %}
+        {% if add.facebook is not empty %}
+          <div class="facebook">{{ add.facebook }}</div>
+        {% endif %}
+        {% if add.text is not empty %}
+          <div class="text">{{ add.text|raw }}</div>
+        {% endif %}
+      {% endfor %}
+    </div>
+    <div class="address-branch">
+      {% for add in address|slice(1, 2) %}
+        {% if add.subtitle is not empty %}
+          <div class="sub-title">{{ add.subtitle }}</div>
+        {% endif %}
+        {% if add.address is not empty %}
+          <div class="post-address">{{ add.address|raw }}</div>
+        {% endif %}
+        {% if add.phone is not empty %}
+          <div class="phone"><a href="tel:{{ add.phone }}">{{ add.phone }}</a></div>
+        {% endif %}
+        {% if add.email is not empty %}
+          <div class="email"><a href="mailto:{{ add.email }}">{{ add.email }}</a></div>
+        {% endif %}
+        {% if add.facebook is not empty %}
+          <div class="facebook">{{ add.facebook }}</div>
+        {% endif %}
+        {% if add.text is not empty %}
+          <div class="text">{{ add.text|raw }}</div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+  <div class="map">
+    <a href="#" class="map-colapse-btn">&lt;</a>
+    <div id="contact-section-map" style="height: 100%; width: 100%"></div>
+  </div>
+</div>

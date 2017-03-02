@@ -1,0 +1,74 @@
+{% if nearest is not empty %}
+  <div class="location-search-results-inner">
+    <div class="nearest-result">
+      <div class="sub-title">
+        <h3>{{ 'In de buurt'|t }}</h3>
+        <span class="distance">{{ nearest.distance_formated }}</span>
+      </div>
+      <div class="address">
+        <b>{{ 'Smallsteps'|t }} {{ nearest.Name }}</b><br/>
+        <span>{{ nearest.StreetAddress }}</span><br/>
+        <span>{{ nearest.City }}</span><br/>
+        <span>{{ 'Tel:'|t }} {{ nearest.Telephone }}</span>
+      </div>
+      <ul class="services-list">
+        {% for service in nearest.services %}
+          <li>
+            {{ service }}
+          </li>
+        {% endfor %}
+      </ul>
+      <div class="location-link">
+        <a class="read-more-link read-more-bw" href="{{ nearest.link }}">{{ nearest.link_title }}</a>
+      </div>
+      {% if nearest.link_tour is not empty %}
+        <div class="tour-link">
+          <a class="tour-more-link" href="{{ nearest.link_tour }}">{{ 'Rondleiding aanvragen'|t }}</a>
+        </div>
+      {% endif %}
+    </div>
+    <div class="nearest-result-map">
+      <div style="width: 100%; height: 500px" id="locations-results-map"></div>
+      <a href="#" class="map-colapse-btn">&lt;</a>
+    </div>
+  </div>
+{% endif %}
+
+<div class="search-results-table">
+  {% for result in results %}
+    <div class="row">
+      <div class="row-inner clearfix">
+        <div class="col col-1">
+          <span class="distance">{{ result.distance_formated }}</span>
+        </div>
+        <div class="col col-2">
+          <div class="address">
+            <b>{{ 'Smallsteps'|t }} {{ result.Name }}</b>
+            <span>{{ result.StreetAddress }}</span>
+            <span>{{ result.City }}</span>
+            <span>{{ 'Tel:'|t }} {{ result.Telephone }}</span>
+          </div>
+        </div>
+        <div class="col col-3">
+          <ul class="services-list">
+            {% for service in result.services %}
+              <li>
+                {{ service }}
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="col col-4">
+          <div class="location-link">
+            <a class="read-more-link read-more-bw" href="{{ result.link }}">{{ result.link_title }}</a>
+          </div>
+          {% if result.link_tour is not empty %}
+            <div class="tour-link">
+              <a class="tour-more-link" href="{{ result.link_tour }}">{{ 'Rondleiding aanvragen'|t }}</a>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>

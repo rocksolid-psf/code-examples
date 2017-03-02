@@ -1,0 +1,37 @@
+<div class="location-finder-header">
+  <div class="location-finder-header-content">
+    {# <div class="locationmainheadertitle">welkom bij smallsteps dijkje</div> #}
+{#     <div class="mainheadertext-wrapper">
+    </div> #}
+    <div class="location-finder-text clearfix">
+      <div>
+        <div class="mainheadertitle"><h2>{{ banner_title }}</h2></div>
+        <div class="mainheadertext">{{ banner_text|raw }}</div>
+        {{ text|raw }}
+      </div>
+    </div>
+    <a href="#search-results" class="read-more-link read-more-cl">{{ 'vraag een rondleiding'|t }}</a>
+  </div>
+  <div class="image">
+    <img src="{{ background }}">
+  </div>
+</div>
+
+<div class="location-finder-reviews clearfix">
+  <h2 class="title-review-section">WAT ANDEREN ZEGGEN</h2>
+  {% for review in reviews %}
+    <div class="location-review">
+      {% if review.image is not empty %}
+        <img class="reviewer" src="{{ review.image }}">
+      {% endif %}
+      <div class="stars">
+        {% for starclass in review.stars %}
+          <span class="{{ starclass }}"></span>
+        {% endfor %}
+      </div>
+      <div class="review-text">
+        {{ review.text|raw }}
+      </div>
+    </div>
+  {% endfor %}
+</div>

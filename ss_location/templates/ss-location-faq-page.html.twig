@@ -1,0 +1,23 @@
+
+<div class="breadcrumbs">
+  <a href="/">{{ "Home"|t }}</a>
+  {{ "Veelgestelde vragen"|t }}
+</div>
+<h1 class="page-title">{{ "Veelgestelde vragen"|t }}</h1>
+<div id="faq-page">
+  {% for faq_list in faqs %}
+    <div class="faq clearfix">
+      <h2>{{ faq_list.name }}</h2>
+      {% if faq_list.list is not empty %}
+        <ul class="faq-list clearfix">
+          {% for faq in faq_list.list %}
+            <li class="item">
+              <div class="faq-question">{{ faq.question }}</div>
+              <div class="faq-answer">{{ faq.answer|raw }}</div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+  {% endfor %}
+</div>

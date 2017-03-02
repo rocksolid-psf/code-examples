@@ -1,0 +1,11 @@
+<div id="location-overview-page">
+  <h2 class="page-title">{{ "Locatieoverzicht"|t }}</h2>
+  {% for location in locations %}
+    <div class="item">
+      <a href="{{ location.link }}" title="{{ location.title }}">
+        <h3>{{ location.name }}</h3>
+        <div class="services">{{ location.services }}</div>
+      </a>
+    </div>
+  {% endfor %}
+</div>

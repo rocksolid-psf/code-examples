@@ -1,0 +1,21 @@
+services:
+  generic.content:
+    class: \Drupal\ss_location\GenericContent
+  location.adwords:
+    class: \Drupal\ss_location\LocationAdWords
+  location.contracts:
+    class: \Drupal\ss_location\LocationContracts
+  location.manager:
+    class: \Drupal\ss_location\LocationManager
+  location.facebookpage:
+    class: \Drupal\ss_location\LocationFacebookPage
+  location.tour:
+    class: \Drupal\ss_location\LocationTour
+  location.reviews:
+      class: \Drupal\ss_location\LocationReviews
+  location.search:
+    class: \Drupal\ss_location\LocationSearch
+  consultants.info:
+    class: \Drupal\ss_location\ConsultantsInfo
+  campaigns.info:
+    class: \Drupal\ss_location\CampaignsInfo

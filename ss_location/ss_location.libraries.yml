@@ -1,0 +1,64 @@
+generic_tour_form:
+  version: 1.x
+  js:
+    js/jquery.validate.min.js: {}
+    js/generic-tour-form.js: {}
+  dependencies:
+    - core/jquery
+    - core/jquery.once
+    - core/jquery.ui.datepicker
+    - core/drupal
+
+tour_form:
+  version: 1.x
+  js:
+    js/jquery.validate.min.js: {}
+    js/tour-form.js: {}
+  dependencies:
+    - core/jquery
+    - core/jquery.once
+    - core/jquery.ui.datepicker
+    - core/drupal
+
+registration_form:
+  version: 1.x
+  js:
+    js/jquery.validate.min.js: {}
+    js/registration-form.js: {}
+  dependencies:
+    - core/jquery
+    - core/jquery.once
+    - core/jquery.ui.datepicker
+    - core/drupal
+
+contact_form:
+  version: 1.x
+  js:
+    js/jquery.validate.min.js: {}
+    js/contact-form.js: {}
+  dependencies:
+    - core/jquery
+    - core/jquery.once
+    - core/jquery.ui.datepicker
+    - core/drupal
+
+contact_section:
+  version: 1.x
+  js:
+    js/contact-section.js: {}
+  dependencies:
+    - ss_common/gmap
+    - core/jquery
+    - core/drupal
+    - core/drupalSettings
+
+meeting_form:
+  version: 1.x
+  js:
+    js/jquery.validate.min.js: {}
+    js/meeting-form.js: {}
+  dependencies:
+    - core/jquery
+    - core/jquery.once
+    - core/jquery.ui.datepicker
+    - core/drupal

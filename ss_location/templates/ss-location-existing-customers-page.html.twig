@@ -1,0 +1,200 @@
+<div id="location-existing-customers-page">
+  <div class="location-existing-customers-header"
+    {% if header.image is not empty %}
+      style="background-image: url({{ header.image }})"
+    {% endif %}
+  >
+    <h1 class="title">{{ header.title|raw }}</h1>
+    <ul class="header-links">
+      {% for link in header.links %}
+        <li class="item">
+          {{ link }}
+        </li>
+      {% endfor %}
+    </ul>
+    <div id="topsteps"></div>
+  </div>
+
+  <div class="breadcrumbs">
+    {% for breadcrumb in breadcrumbs %}
+      {{ breadcrumb }}
+    {% endfor %}
+  </div>
+
+  <div id="search" class="search clearfix">
+    <h2>{{ search.title|raw }}</h2>
+    <div class="field--name-body">{{ search.text|raw }}</div>
+    <div id="location-existing-customers-search-form">
+      {{ search.form }}
+    </div>
+  </div>
+
+  {{ contacts }}
+
+  <div id="faq" class="faq clearfix">
+    <h2>{{ faq.title|raw }}</h2>
+    {% if faq.list is not empty %}
+      <ul class="faq-list clearfix">
+        {% for faq_item in faq.list %}
+          <li class="item">
+            <div class="faq-question">{{ faq_item.question }}</div>
+            <div class="faq-answer">{{ faq_item.answer|raw }}</div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+
+  <div id="teaching-plan" class="teaching-plan clearfix">
+    <div class="content">
+      <div class="field--name-body">{{ teaching_plan.text|raw }}</div>
+    </div>
+    <div class="content">
+      <h2>{{ teaching_plan.title|raw }}</h2>
+      <div id="location-existing-customers-teaching-plan-search-form">
+        {{ search.form }}
+      </div>
+      {% if teaching_plan.links|length > 0 %}
+        <ul class="plan-reports-links">
+          {% for link in teaching_plan.links %}
+            <li class="item">
+              <a download href="{{ link.link }}">{{ link.title }}</a>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+  </div>
+
+  <div id="health" class="health clearfix">
+    <div class="content">
+      <h2>{{ health.title|raw }}</h2>
+      <div class="field--name-body">{{ health.text|raw }}</div>
+    </div>
+    <div class="content">
+      <div class="files">{{ health.links|raw }}</div>
+    </div>
+  </div>
+
+  <div id="diet" class="diet clearfix">
+    <div class="content">
+      <h2>{{ diet.title|raw }}</h2>
+      <div class="field--name-body">{{ diet.text|raw }}</div>
+    </div>
+    <div class="content">
+      <div class="files">{{ diet.links|raw }}</div>
+    </div>
+  </div>
+
+  <div id="security" class="security clearfix">
+    <div class="content">
+      <h2>{{ security.title|raw }}</h2>
+      <div class="field--name-body">{{ security.text|raw }}</div>
+    </div>
+    <div class="content">
+      <div class="files">{{ security.links|raw }}</div>
+    </div>
+  </div>
+
+  <div id="protocol" class="protocol clearfix">
+    <div class="content">
+      <h2>{{ protocol.title|raw }}</h2>
+      <div class="field--name-body">{{ protocol.text|raw }}</div>
+    </div>
+    <div class="content">
+      <h2>{{ report.title|raw }}</h2>
+      <div class="field--name-body">{{ report.text|raw }}</div>
+      <div id="location-existing-customers-report-search-form">
+        {{ search.form }}
+      </div>
+      {% if report.links|length > 0 %}
+        <ul class="plan-reports-links">
+          {% for link in report.links %}
+            <li class="item">
+              {{ link }}
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+  </div>
+
+  <div  class="participation clearfix">
+    <div class="image">
+      {% if participation.image is not empty %}
+        <img width="640" height="640" src="{{ participation.image }}">
+      {% endif %}
+    </div>
+    <div class="content" id="participation">
+      <h2>{{ participation.title|raw }}</h2>
+      <div class="field--name-body">{{ participation.text|raw }}</div>
+    </div>
+  </div>
+
+  <div  class="questions clearfix">
+    <div class="image">
+      {% if questions.image is not empty %}
+        <img width="640" height="640" src="{{ questions.image }}" />
+      {% endif %}
+    </div>
+    <div id="question" class="content">
+      <h2>{{ questions.title|raw }}</h2>
+      <div class="field--name-body">{{ questions.text|raw }}</div>
+      <a href="#question-form" id="questions-read-more" class="read-more-link read-more-bw">{{ questions.button }}</a>
+    </div>
+  </div>
+
+  <div id="question-form" class="questions clearfix">
+    <a href="#question-form" class="general-close-btn close-button">x</a>
+    {{ question_form|raw }}
+  </div>
+
+  <div id="complaints" class="complaints clearfix">
+    <div class="content">
+      <h2>{{ complaints.title|raw }}</h2>
+      <div class="field--name-body">{{ complaints.text|raw }}</div>
+    </div>
+    <div class="content">
+      <h3>{{ complaints.subtitle|raw }}</h3>
+      <div class="files">
+        {{ complaints.links|raw }}
+      </div>
+      <a href="{{ complaints.button_link }}" id="complaints-read-more" class="read-more-link read-more-bw">{{ complaints.button_title }}</a>
+    </div>
+  </div>
+
+  <div id="complaints-form" class="questions clearfix">
+    <a href="#complaints-form" class="general-close-btn close-button">x</a>
+    {{ complaint_form|raw }}
+  </div>
+
+  <div id="confidential" class="confidential clearfix">
+    <div class="image">
+      {% if consultants is not empty %}
+        <div class="consultants-carousel owl-carousel">
+          {% for consultant in consultants %}
+            <div class="item">
+              {% if consultant.image is not empty %}
+                <img width="220" height="220" src="{{ consultant.image }}"/>
+              {% endif %}
+              {% if consultant.name is not empty %}
+                <div class="consultants-name">{{ consultant.name }}</div>
+              {% endif %}
+              {% if consultant.phone is not empty %}
+                <div class="consultants-phone">{{ consultant.phone }}</div><br>
+              {% endif %}
+              {% if consultant.email is not empty %}
+                <div class="consultants-email"><a target="_blank" href="mailto:{{ consultant.email }}">{{ consultant.email }}</a></div>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="content">
+      <h2>{{ confidential.title|raw }}</h2>
+      <div class="field--name-body">{{ confidential.text|raw }}</div>
+    </div>
+  </div>
+</div>

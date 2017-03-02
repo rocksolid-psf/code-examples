@@ -1,0 +1,617 @@
+<?php
+
+/**
+ * @file
+ * Location entity module.
+ */
+
+use Drupal\Core\Link;
+use Drupal\Core\Render\Element;
+use Drupal\Core\Url;
+
+const LOCATION_SERVICES = [
+  'KDV' => 'kinderdagverblijf',
+  'PSZ' => 'peuterspeelzaal',
+  'BSO' => 'buitenschoolse-opvang'
+];
+
+const LOCATION_SERVICES_NAMES = [
+  'KDV' => 'Kinderdagverblijf',
+  'PSZ' => 'Peuterspeelzaal',
+  'BSO' => 'Buitenschoolse opvang'
+];
+
+const LOCATION_SERVICES_AGE = [
+  'KDV' => '0 - 4',
+  'PSZ' => '2 - 4',
+  'BSO' => '4 - 13'
+];
+
+const LOCATION_BSO_SERVICES = [
+  'NSO' => 'Naschoolse opvang',
+  'TSO' => 'Tussenschoolse opvang',
+  'VSO' => 'Voorschoolse opvang'
+];
+
+/**
+ * Get generic content by name.
+ */
+function gc($name) {
+  $gc = \Drupal::service('generic.content');
+  return $gc->getContent($name);
+}
+
+/**
+ * Get location AdWords by id.
+ */
+function ss_location_adwords($id) {
+  $lc = \Drupal::service('location.adwords');
+  return $lc->getLocationAdWords($id);
+}
+
+/**
+ * Get location contracts by location id.
+ */
+function ss_location_contracts($lid, $limit = 0) {
+  $lc = \Drupal::service('location.contracts');
+  return $lc->getContracts($lid, $limit);
+}
+
+/**
+ * Get service contracts by location id and service name.
+ */
+function ss_location_service_contracts($lid, $service) {
+  $lc = \Drupal::service('location.contracts');
+  return $lc->getServiceContracts($lid, $service);
+}
+
+/**
+ * Get manager info by manager id.
+ */
+function ss_location_manager($mid) {
+  $lm = \Drupal::service('location.manager');
+  return $lm->getManagerInfo($mid);
+}
+
+/**
+ * Get facebook page information info by social facebook id.
+ */
+function ss_location_fb_page_info($fid) {
+  $fp = \Drupal::service('location.facebookpage');
+  return $fp->getFacebookPage($fid);
+}
+
+/**
+ * Get location tour schedules by location id.
+ */
+function ss_location_tour_schedules($lid) {
+  $ts = \Drupal::service('location.tour');
+  return $ts->getLocationTourSchedules($lid);
+}
+
+/**
+ * Set location tour booked by tour id.
+ */
+function ss_location_tour_book($tid, $lid) {
+  $bt = \Drupal::service('location.tour');
+  $bt->setLocationTourBook($tid, $lid);
+}
+
+/**
+ * Get location reviews.
+ */
+function ss_location_get_location_reviews() {
+  $ls = \Drupal::service('location.reviews');
+  return $ls->getLocationReviews();
+}
+
+/**
+ * Search location by name.
+ * @param $name
+ */
+function ss_location_search_by_name($name) {
+  $ls = \Drupal::service('location.search');
+  return $ls->getLocationByName($name);
+}
+
+/**
+ * Get campaigns list.
+ */
+function ss_location_get_campaigns_list() {
+  $ci = \Drupal::service('campaigns.info');
+  return $ci->getCampaigns();
+}
+
+/**
+ * Get services for campaign.
+ */
+function ss_location_get_campaign_services($cid) {
+  $ci = \Drupal::service('campaigns.info');
+  return $ci->getCampaignServices($cid);
+}
+
+/**
+ * Search location by address.
+ * @param $address
+ */
+function ss_location_search_by_address($address) {
+  $ls = \Drupal::service('location.search');
+  return $ls->getLocationByAddress($address);
+}
+
+function ss_location_get_location_list_simple() {
+  $ls = \Drupal::service('location.search');
+  return $ls->getLocationsListSimple();
+}
+
+function ss_location_get_location_city_list($campaign = 0) {
+  $ls = \Drupal::service('location.search');
+  return $ls->getLocationsCityList($campaign);
+}
+
+function ss_location_get_location_list($services, $lat, $lng) {
+  $ls = \Drupal::service('location.search');
+  return $ls->getLocationsList($services, $lat, $lng);
+}
+
+function ss_location_order_by_nearest($lat, $lng, $services, $page) {
+  $ls = \Drupal::service('location.search');
+  return $ls->getNearestLocationsInfo($lat, $lng, $services, $page);
+}
+
+function ss_location_nearest_locations_list($lat, $lng, $services) {
+  $ls = \Drupal::service('location.search');
+  return $ls->getNearestLocationsList($lat, $lng, $services);
+}
+
+function ss_location_search_coords($address, $type, $services) {
+  $ls = \Drupal::service('location.search');
+  return $ls->getLocationBySearch($address, $type, $services);
+}
+
+function ss_location_consultants_info() {
+  $ci = \Drupal::service('consultants.info');
+  return $ci->getConsultantsInfo();
+}
+
+/**
+ * Implements hook_theme().
+ */
+function ss_location_theme() {
+  return array(
+    'ss_location' => [
+      'render element' => 'elements'
+    ],
+    'ss_location_search_adwords' => [
+      'variables' => [
+        'background' => '',
+        'banner_title' => '',
+        'banner_text' => '',
+        'text' => '',
+        'reviews' => [],
+      ],
+    ],
+    'ss_location_search' => [
+      'variables' => [
+        'adwords' => '',
+        'breadcrumbs' => [],
+        'title' => '',
+        'form' => '',
+        'last_location_link' => '',
+        'switcher_title' => '',
+        'switcher_action' => '',
+        'results' => [],
+        'count' => 0
+      ],
+    ],
+    'ss_location_search_results' => [
+      'variables' => [
+        'page' => '',
+        'nearest' => '',
+        'results' => []
+      ],
+    ],
+    'ss_location_contact_page' => [
+      'variables' => [
+        'header' => [],
+        'breadcrumbs' => [],
+        'search' => [],
+        'contacts' => [],
+        'questions' => [],
+        'question_form_status' => '',
+        'question_form' => [],
+        'complaints' => [],
+        'complaint_form' => [],
+        'consultants' => [],
+        'confidential' => [],
+      ],
+    ],
+    'ss_location_existing_customers_page' => [
+      'variables' => [
+        'header' => [],
+        'breadcrumbs' => [],
+        'search' => [],
+        'contacts' => [],
+        'faq' => [],
+        'teaching_plan' => [],
+        'health' => [],
+        'diet' => [],
+        'security' => [],
+        'protocol' => [],
+        'report' => [],
+        'participation' => [],
+        'questions' => [],
+        'question_form' => [],
+        'complaints' => [],
+        'complaint_form' => [],
+        'consultants' => [],
+        'confidential' => [],
+      ],
+    ],
+    'ss_location_contact_section' => [
+      'variables' => [
+        'title' => '',
+        'map' => '',
+        'schedule' => [],
+        'services' => [],
+        'address' => []
+      ],
+    ],
+    'ss_location_overview_page' => [
+      'variables' => [
+        'locations' => []
+      ],
+    ],
+    'ss_location_faq_page' => [
+      'variables' => [
+        'faqs' => []
+      ],
+    ],
+    'ss_location_meeting_page' => [
+      'variables' => [
+        'text' => '',
+        'form' => []
+      ],
+    ]
+  );
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK().
+ */
+function ss_location_theme_suggestions_ss_location(array $variables) {
+  $suggestions = array();
+  $ss_location = $variables['elements']['#ss_location'];
+  $sanitized_view_mode = strtr($variables['elements']['#view_mode'], '.', '_');
+
+  $suggestions[] = 'ss_location__' . $sanitized_view_mode;
+  $suggestions[] = 'ss_location__' . $ss_location->bundle();
+  $suggestions[] = 'ss_location__' . $ss_location->bundle() . '__' . $sanitized_view_mode;
+  $suggestions[] = 'ss_location__' . $ss_location->id();
+  $suggestions[] = 'ss_location__' . $ss_location->id() . '__' . $sanitized_view_mode;
+
+  return $suggestions;
+}
+
+/**
+ * Prepares variables for ss_location templates.
+ *
+ * Default template: ss_location.html.twig.
+ *
+ * Most themes use their own copy of ss_location.html.twig. The default is located
+ * inside "/core/modules/custom/ss_location/templates/ss_location.html.twig". Look in there for the
+ * full list of variables.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - elements: An array of elements to display in view mode.
+ *   - ss_location: The ss_location object.
+ *   - view_mode: View mode; e.g., 'full', 'teaser', etc.
+ */
+function template_preprocess_ss_location(&$variables) {
+  $variables['view_mode'] = $variables['elements']['#view_mode'];
+  // Provide a distinct $teaser boolean.
+  $variables['teaser'] = $variables['view_mode'] == 'teaser';
+  $variables['ss_location'] = $variables['elements']['#ss_location'];
+
+  /** @var \Drupal\ss_location\Entity\Location $ss_location */
+  $ss_location = $variables['ss_location'];
+  $variables['url'] = $ss_location->url('canonical', array(
+    'language' => $ss_location->language(),
+  ));
+
+  // Helpful $content variable for templates.
+  $variables += array('content' => array());
+  foreach (Element::children($variables['elements']) as $key) {
+    $variables['content'][$key] = $variables['elements'][$key];
+  }
+
+  // Add article ARIA role.
+  $variables['attributes']['role'] = 'article';
+}
+
+function ss_location_set_last_location() {
+  $params = \Drupal::routeMatch()->getRawParameters();
+  $location_id = $params->get('ss_location');
+  if ($location_id) {
+    $_SESSION['last_location'] = $location_id;
+  }
+}
+
+function ss_location_get_last_location() {
+  return isset($_SESSION['last_location']) ? $_SESSION['last_location'] : NULL;
+}
+
+/*
+ * Helper function which provide contact section for Location services page, Contact page and Existing customer page
+ */
+function ss_location_contact_section($location = NULL, $service = NULL) {
+  global $base_url;
+
+  $build = [
+    '#attached' => [
+      'library' => 'ss_location/contact_section',
+      'drupalSettings' => ['ss_location' => ['contact' => [
+        'locations' => [],
+        'icon' => $base_url . '/' . \Drupal::theme()->getActiveTheme()->getPath() . '/images/search-pin.png'
+      ]]]
+    ],
+    '#theme' => 'ss_location_contact_section',
+    '#title' => NULL,
+    '#map' => NULL,
+    '#schedule' => [],
+    '#address' => []
+  ];
+
+  $days = [
+    2 => t('Maandag'),
+    3 => t('Dinsdag'),
+    4 => t('Woensdag'),
+    5 => t('Donderdag'),
+    6 => t('Vrijdag'),
+  ];
+
+  $schedule = [];
+  $schedule['header'] = [
+    t('Openingstijden')
+  ];
+  $schedule['time'][] = $days;
+
+  if ($location) {
+    $location_storage = \Drupal::entityTypeManager()->getStorage('ss_location');
+    $location = $location_storage->load($location);
+    $services = [];
+
+    if ($location->getServiceKDV() == 1 && ($service == 'KDV' || empty($service))) {
+      $services['kdv'] = LOCATION_SERVICES_NAMES['KDV'];
+      $hours = $location->getHoursKDV();
+      $time = [];
+      foreach ($days as $key => $day) {
+        $time_formatted = NULL;
+        if ($hours[1][$key]['Start'] && $hours[1][$key]['End']) {
+          $time_formatted = $hours[1][$key]['Start'] . ' - ' . $hours[1][$key]['End'];
+        }
+        $time[] = $time_formatted;
+      }
+      $build['#schedule']['kdv'] = $schedule;
+      $build['#schedule']['kdv']['time'][] = $time;
+    }
+
+    if ($location->getServicePSZ() == 1 && ($service == 'PSZ' || empty($service))) {
+      $services['psz'] = LOCATION_SERVICES_NAMES['PSZ'];
+      $hours = $location->getHoursPSZ();
+      $time_morning = $time_afternoon = [];
+      $time_morning_status = $time_afternoon_status = FALSE;
+      foreach ($days as $key => $day) {
+        $time_formatted = NULL;
+        if ($hours[1][$key]['Start'] && $hours[1][$key]['End']) {
+          $time_morning_status = TRUE;
+          $time_formatted = $hours[1][$key]['Start'] . ' - ' . $hours[1][$key]['End'];
+        }
+        $time_morning[] = $time_formatted;
+        $time_formatted = NULL;
+        if ($hours[2][$key]['Start'] && $hours[2][$key]['End']) {
+          $time_afternoon_status = TRUE;
+          $time_formatted = $hours[2][$key]['Start'] . ' - ' . $hours[2][$key]['End'];
+        }
+        $time_afternoon[] = $time_formatted;
+      }
+      $build['#schedule']['psz'] = $schedule;
+      if ($time_morning_status) {
+        $build['#schedule']['psz']['header'][] = t('Ochtend');
+        $build['#schedule']['psz']['time'][] = $time_morning;
+      }
+      if ($time_afternoon_status) {
+        $build['#schedule']['psz']['header'][] = t('Middag');
+        $build['#schedule']['psz']['time'][] = $time_afternoon;
+      }
+    }
+
+    if ($location->getServiceBSO() == 1 && ($service == 'BSO' || empty($service))) {
+      $services['bso'] = LOCATION_SERVICES_NAMES['BSO'];
+      $hours = $location->getHoursBSO();
+      $build['#schedule']['bso'] = $schedule;
+
+      $time_vso_status = $time_tso_status = $time_nso_status = $time_holiday_status = FALSE;
+      if ($location->getServiceVSO() == 1) {
+        $time = [];
+        foreach ($days as $key => $day) {
+          $time_formatted = NULL;
+          if ($hours[1][$key]['Start'] && $hours[1][$key]['End']) {
+            $time_vso_status = TRUE;
+            $time_formatted = $hours[1][$key]['Start'] . ' - ' . $hours[1][$key]['End'];
+          }
+          $time[] = $time_formatted;
+        }
+        if ($time_vso_status) {
+          $build['#schedule']['bso']['header'][] = t('Voorschools');
+          $build['#schedule']['bso']['time'][] = $time;
+        }
+      }
+
+      if ($location->getServiceTSO() == 1) {
+        $time = [];
+        foreach ($days as $key => $day) {
+          $time_formatted = NULL;
+          if (@$hours[2][$key]['Start'] && @$hours[2][$key]['End']) {
+            $time_tso_status = TRUE;
+            $time_formatted = $hours[2][$key]['Start'] . ' - ' . $hours[2][$key]['End'];
+          }
+          $time[] = $time_formatted;
+        }
+        if ($time_tso_status) {
+          $build['#schedule']['bso']['header'][] = t('Tussenschools');
+          $build['#schedule']['bso']['time'][] = $time;
+        }
+      }
+
+      if ($location->getServiceNSO() == 1) {
+        $time = [];
+        foreach ($days as $key => $day) {
+          $time_formatted = NULL;
+          if ($hours[3][$key]['Start'] && $hours[3][$key]['End']) {
+            $time_nso_status = TRUE;
+            $time_formatted = $hours[3][$key]['Start'] . ' - ' . $hours[3][$key]['End'];
+          }
+          $time[] = $time_formatted;
+        }
+        if ($time_nso_status) {
+          $build['#schedule']['bso']['header'][] = t('Naschools');
+          $build['#schedule']['bso']['time'][] = $time;
+        }
+      }
+
+      $time = [];
+      foreach ($days as $key => $day) {
+        $time_formatted = NULL;
+        if (@$hours[4][$key]['Start'] && @$hours[4][$key]['End']) {
+          $time_holiday_status = TRUE;
+          $time_formatted = $hours[4][$key]['Start'] . ' - ' . $hours[4][$key]['End'];
+        }
+        $time[] = $time_formatted;
+      }
+      if ($time_holiday_status) {
+        $build['#schedule']['bso']['header'][] = t('Vakantieweken');
+        $build['#schedule']['bso']['time'][] = $time;
+      }
+    }
+
+    $build['#title'] = t('Smallsteps @name', ['@name' => $location->getName()]);
+    $build['#services'] = $services;
+
+    $facebook = NULL;
+    if ($location->getSocialFacebook()) {
+      $facebook = Link::fromTextAndUrl(t('Facebook'), Url::fromUri($location->getSocialFacebook(), ['attributes' => ['target' => '_blank']]));
+    }
+
+    $build['#attached']['drupalSettings']['ss_location']['contact']['locations'][] = ['lat' => $location->getStreetLatitude(), 'lng' => $location->getStreetLongitude()];
+    $full_address = [];
+    $full_address[] = $location->getStreetAddress();
+    $full_address[] = $location->getPostCode() . ' ' . $location->getCity();
+
+    $address = [];
+    $address[] = [
+      'subtitle' => t('Adres'),
+      'address' => implode('<br />', $full_address),
+      'phone' => $location->getTelephone(),
+      'facebook' => $facebook
+    ];
+
+    if ($location->getBranch() == 1) {
+      $variables['maincontactaddressbranchtitle'] = gc('LocationMainContactAddressBranchTitle');
+      $branch_full_address = [];
+      $branch_full_address[] = $location->getBranchName();
+      $branch_full_address[] = $location->getBranchStreetAddress();
+      $branch_full_address[] = $location->getBranchPostCode() . ' ' . $location->getBranchCity();
+      $build['#attached']['drupalSettings']['ss_location']['contact']['locations'][] = ['lat' => $location->getBranchLatitude(), 'lng' => $location->getBranchLongitude()];
+
+      $address[] = [
+        'subtitle' => t('Dependance'),
+        'address' => implode('<br />', $branch_full_address),
+        'phone' => $location->getBranchTelephone(),
+      ];
+    }
+
+    $build['#address'] = $address;
+  }
+  else {
+    $build['#title'] = t('Contactgegevens en openingstijden Smallsteps klantenservice');
+
+    $hours = [];
+    foreach ($days as $day) {
+      $hours[] = '8:30 - 17:00';
+    }
+    $schedule['time'][] = $hours;
+    $build['#schedule']['default'] = $schedule;
+
+    $post_address = [
+      'Smallsteps klantenservice',
+      'Demmersweg 76',
+      '7556 BN Hengelo'
+    ];
+    $post_address = implode('<br>', $post_address);
+
+    $address = [];
+    $address[] = [
+      'subtitle' => t('Adres'),
+      'address' => $post_address,
+      'phone' => '074-2405577',
+      'email' => '​info@smallsteps.nl',
+    ];
+    $address[] = [
+      'subtitle' => t('Contact leveranciers'),
+      'phone' => '074-2405500',
+    ];
+    $address[] = [
+      'subtitle' => t('Contact pers'),
+      'email' => '​pers@smallsteps.nl',
+      'text' => t('​BTW-nummer: NL854111633B01<br>KvK-nummer: 60901934'),
+    ];
+
+    $build['#address'] = $address;
+
+    $build['#attached']['drupalSettings']['ss_location']['contact']['locations'][] = ['lat' => 52.2832704, 'lng' => 6.7776246];
+  }
+
+  return $build;
+}
+
+/**
+ * Helper function for send date to CRM.
+ */
+function ss_location_remote_request($url = '', $postdata = FALSE, $authenticate = FALSE, $headers = FALSE) {
+  if (!$url) {
+    return;
+  }
+
+  $curl = curl_init($url);
+
+  curl_setopt($curl, CURLOPT_FOLLOWLOCATION, TRUE);
+  curl_setopt($curl, CURLOPT_HEADER, FALSE);
+  curl_setopt($curl, CURLOPT_REFERER, "http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}");
+  curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
+  curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
+
+  if ($authenticate) {
+    curl_setopt($curl, CURLOPT_USERPWD, $authenticate);
+  }
+
+  if ($headers) {
+    curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+  }
+
+  if ($postdata) {
+    curl_setopt($curl, CURLOPT_POST, TRUE);
+    curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($postdata));
+  }
+
+  $response = curl_exec($curl);
+
+  if (curl_errno($curl)) {
+    return 'Error: ' . curl_error($curl);
+  }
+
+  curl_close($curl);
+
+  return $response;
+}

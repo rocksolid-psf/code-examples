@@ -1,0 +1,34 @@
+<div id="location-search-page">
+  {{ adwords }}
+  <div class="breadcrumbs">
+    {% for breadcrumb in breadcrumbs %}
+      {{ breadcrumb }}
+    {% endfor %}
+  </div>
+  <div class="search__content">
+
+  {% if adwords is empty %}
+    <div class="search__content-inner">
+        <h1>{{ title }}</h1>
+        <div class="location-search-form">
+          {{ form }}
+          <div class="location-search-last-location">
+            {% if last_location_link is not empty %}
+              <span>
+                <b>{{ 'Laatst bezocht:'|t }}</b> {{ last_location_link }}
+              </span>
+              <span class="divider"> | </span>
+            {% endif %}
+            <span><b>></b> <span id="search-switcher" data-action="{{ switcher_action }}">{{ switcher_title }}</span></span>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+    <div id="search-results" class="location-search-results">
+      {{ results }}
+    </div>
+    {% if results is not empty %}
+      <a href="#" class="read-more-search read-more-link read-more-bw" data-count="{{ count }}">{{ "Meer resultaten laden..."|t }}</a>
+    {% endif %}
+  </div>
+</div>

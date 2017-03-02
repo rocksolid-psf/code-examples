@@ -1,0 +1,7 @@
+# Location menu items definition
+entity.ss_location.collection:
+  title: 'Locations'
+  route_name: entity.ss_location.collection
+  description: 'Locations List'
+  parent: system.admin_content
+  weight: 100

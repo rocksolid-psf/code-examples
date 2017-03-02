@@ -1,0 +1,8 @@
+name: SmallSteps Location
+type: module
+description: Contains Location entity and all related
+core: 8.x
+package: SmallSteps
+dependencies:
+  - ss_city
+  - ss_faq

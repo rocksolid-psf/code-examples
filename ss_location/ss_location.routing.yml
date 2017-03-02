@@ -1,0 +1,170 @@
+entity.ss_location.canonical:
+  path: '/kinderopvang/{ss_location}'
+  defaults:
+    _entity_view: 'ss_location'
+    _title_callback: '\Drupal\ss_location\Controller\LocationController::getLocationTitle'
+  requirements:
+    _custom_access:  '\Drupal\ss_location\Controller\LocationController::access'
+entity.ss_location.about:
+  path: '/kinderopvang/{ss_location}/ons-kinderdagverblijf'
+  defaults:
+    _entity_view: 'ss_location'
+    _title: 'Location about us'
+  requirements:
+    _entity_access: 'ss_location.view'
+entity.ss_location.location:
+  path: '/kinderopvang/{ss_location}/onze-locatie'
+  defaults:
+    _entity_view: 'ss_location.our_location_page'
+    _title_callback: '\Drupal\ss_location\Controller\LocationController::getLocationOurLocationTitle'
+  requirements:
+    _entity_access: 'ss_location.view'
+entity.ss_location.tour:
+  path: '/kinderopvang/{ss_location}/rondleiding-aanvragen'
+  defaults:
+    _entity_view: 'ss_location'
+    _title: 'Location tour'
+  requirements:
+    _entity_access: 'ss_location.view'
+entity.ss_location.tour.thank:
+  path: '/kinderopvang/{ss_location}/rondleiding-aanvragen/bedankt'
+  defaults:
+    _entity_view: 'ss_location'
+    _title: 'Location tour'
+  requirements:
+    _entity_access: 'ss_location.view'
+entity.ss_location.registration:
+  path: '/kinderopvang/{ss_location}/aanmelden'
+  defaults:
+    _entity_view: 'ss_location'
+    _title: 'Location registration'
+  requirements:
+    _entity_access: 'ss_location.view'
+entity.ss_location.registration.thank:
+  path: '/kinderopvang/{ss_location}/aanmelden/bedankt'
+  defaults:
+    _entity_view: 'ss_location'
+    _title: 'Location registration'
+  requirements:
+    _entity_access: 'ss_location.view'
+entity.ss_location.calculator:
+  path: '/kinderopvang/{ss_location}/kostencalculator'
+  defaults:
+    _entity_view: 'ss_location.calculator_page'
+    _title: 'Location calculator'
+  requirements:
+    _entity_access: 'ss_location.view'
+entity.ss_location.service.kdv:
+  path: '/kinderopvang/{ss_location}/kinderdagverblijf'
+  defaults:
+    _entity_view: 'ss_location.services_page'
+    _title_callback: '\Drupal\ss_location\Controller\LocationController::getLocationServiceKDVTitle'
+  requirements:
+    _entity_access: 'ss_location.view'
+entity.ss_location.service.psz:
+  path: '/kinderopvang/{ss_location}/peuterspeelzaal'
+  defaults:
+    _entity_view: 'ss_location.services_page'
+    _title_callback: '\Drupal\ss_location\Controller\LocationController::getLocationServicePSZTitle'
+  requirements:
+    _entity_access: 'ss_location.view'
+entity.ss_location.service.bso:
+  path: '/kinderopvang/{ss_location}/buitenschoolse-opvang'
+  defaults:
+    _entity_view: 'ss_location.services_page'
+    _title_callback: '\Drupal\ss_location\Controller\LocationController::getLocationServiceBSOTitle'
+  requirements:
+    _entity_access: 'ss_location.view'
+entity.ss_location.collection:
+  path: '/admin/content/location'
+  defaults:
+    _entity_list: 'ss_location'
+    _title: 'Location List'
+  requirements:
+    _permission: 'view location entity'
+entity.ss_location.search:
+  path: '/locatiezoeker/{province}/{city}'
+  defaults:
+    _title: 'Zoek je locatie'
+    _controller: '\Drupal\ss_location\Controller\LocationSearchController::searchPage'
+    city: ''
+    province: ''
+  requirements:
+    _permission: 'view location entity'
+entity.ss_location.searchtour:
+  path: '/rondleiding-aanvragen/{province}/{city}'
+  defaults:
+    _title: 'Waar wil je een rondleiding?'
+    _controller: '\Drupal\ss_location\Controller\LocationSearchController::searchTourPage'
+    city: ''
+    province: ''
+  requirements:
+    _permission: 'view location entity'
+entity.ss_location.searchregistration:
+  path: '/inschrijven/{province}/{city}'
+  defaults:
+    _title: 'Waar wil je je inschrijven?'
+    _controller: '\Drupal\ss_location\Controller\LocationSearchController::searchRegistrationPage'
+    city: ''
+    province: ''
+  requirements:
+    _permission: 'view location entity'
+entity.ss_location.search.autocomplete:
+  path: '/locatiezoeker-json'
+  defaults:
+    _controller: '\Drupal\ss_location\Controller\LocationSearchController::autocomplete'
+  requirements:
+    _permission: 'view location entity'
+entity.ss_location.search.nearest:
+  path: '/locatiezoeker-nearest'
+  defaults:
+    _controller: '\Drupal\ss_location\Controller\LocationSearchController::nearest'
+  requirements:
+    _permission: 'view location entity'
+entity.ss_location.contact:
+  path: '/contact'
+  defaults:
+    _title: 'Contact'
+    _controller: '\Drupal\ss_location\Controller\LocationContactController::page'
+  requirements:
+    _permission: 'view location entity'
+entity.ss_location.existingcustomers:
+  path: '/bestaande-klanten'
+  defaults:
+    _title: 'Alles over jouw kind bij Smallsteps'
+    _controller: '\Drupal\ss_location\Controller\ExistingCustomersController::page'
+  requirements:
+    _permission: 'view location entity'
+entity.ss_location.overview:
+  path: '/locatieoverzicht'
+  defaults:
+    _title: 'Locatieoverzicht'
+    _controller: '\Drupal\ss_location\Controller\LocationController::overviewPage'
+  requirements:
+    _permission: 'view location entity'
+ss_location.faqpage:
+  path: '/veelgestelde-vragen'
+  defaults:
+    _title: 'Veelgestelde vragen'
+    _controller: '\Drupal\ss_location\Controller\FAQController::page'
+  requirements:
+    _permission: 'view location entity'
+ss_location.address:
+  path: '/address-generate'
+  defaults:
+    _controller: '\Drupal\ss_location\Controller\AddressController::generate'
+  requirements:
+    _permission: 'view location entity'
+ss_location.nearestlocations:
+  path: '/nearest-locations-generate'
+  defaults:
+    _controller: '\Drupal\ss_location\Controller\LocationSearchController::nearestGenerate'
+  requirements:
+    _permission: 'view location entity'
+ss_location.meeting:
+  path: '/ocbijeenkomst'
+  defaults:
+    _title: 'Bijeenkomst oudercommissies'
+    _controller: '\Drupal\ss_location\Controller\MeetingController::page'
+  requirements:
+    _permission: 'view location entity'
