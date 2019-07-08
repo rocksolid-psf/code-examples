@@ -1,0 +1,17 @@
+<?php
+
+/**
+ * @file
+ * Provides hooks for rules_curl_http_post module.
+ */
+
+/**
+ * Implements hook_help().
+ */
+function rules_curl_http_post_help($path, $arg) {
+  switch ($path) {
+    case "admin/help#rules_curl_http_post":
+      return t("Provides 'Request HTTP data' action for making http requests via cURL.");
+      break;
+  }
+}

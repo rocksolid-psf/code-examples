@@ -1,0 +1,5 @@
+name = Rules cURL HTTP Post
+description = Provides an action for making http requests via cURL.
+package = Rules
+core = 7.x
+dependencies[] = rules
