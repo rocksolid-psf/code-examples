@@ -1,0 +1,13 @@
+<div class="status-title">
+  <h2>{{ content.label }}</h2>
+</div>
+{% if content.message.value %}
+  <div class="status-message">
+    <p>{{ content.message.value }}</p>
+  </div>
+{% endif %}
+{% if content.sub_message.value %}
+  <div class="status-sub-message">
+    <p>{{ content.sub_message.value }}</p>
+  </div>
+{% endif %}

@@ -1,0 +1,13 @@
+.block-migrations-block .status-title {
+  margin: 0;
+  color: #00377D;
+  font-family: Roboto;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 37px;
+  text-align: center;
+}
+.block-migrations-block .status-message {
+  text-align: center;
+  font-size: 16px;
+}

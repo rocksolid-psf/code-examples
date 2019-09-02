@@ -1,0 +1,5 @@
+# Migrations Block Libraries.
+main:
+  css:
+    theme:
+      assets/css/main.css: {}
