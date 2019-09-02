@@ -1,0 +1,4 @@
+name: Drush 8 Sample
+type: module
+description: This module provides a samples of Drush 8.x commands.
+core: 8.x

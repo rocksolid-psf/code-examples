@@ -1,0 +1,17 @@
+{
+  "name": "drupal/drush9_sample",
+  "description": "Command that update needed node. Drush 9 commands.",
+  "type": "drupal-module",
+  "autoload": {
+    "psr-4": {
+      "Drupal\\drush9_sample\\": "src/"
+    }
+  },
+  "extra": {
+    "drush": {
+      "services": {
+        "drush.services.yml": "^9"
+      }
+    }
+  }
+}
