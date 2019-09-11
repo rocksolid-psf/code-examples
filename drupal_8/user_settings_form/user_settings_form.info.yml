@@ -1,0 +1,7 @@
+name: 'user_settings_form'
+type: module
+description: 'User settings form'
+core: 8.x
+package: 'Custom'
+dependencies:
+  - drupal:user

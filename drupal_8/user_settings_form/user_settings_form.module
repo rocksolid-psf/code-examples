@@ -1,0 +1,18 @@
+<?php
+
+/**
+ * @file
+ * Main file for hooks and custom functions.
+ */
+
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function user_settings_form_preprocess_html(&$variables) {
+  $uid = Drupal::currentUser()->id();
+  $user_data = Drupal::service('user.data');
+  $color = $user_data->get('user_settings_form', $uid, 'site_background_color');
+  if (!empty($color)) {
+    $variables['attributes']['style'] = 'background:' . $color;
+  }
+}

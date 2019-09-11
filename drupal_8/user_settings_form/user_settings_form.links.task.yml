@@ -1,0 +1,4 @@
+user_settings.user_settings:
+  route_name: user_settings_form_form.user_settings_form
+  base_route: entity.user.canonical
+  title: 'Settings'

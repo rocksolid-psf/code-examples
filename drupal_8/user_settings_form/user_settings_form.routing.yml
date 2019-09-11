@@ -1,0 +1,8 @@
+user_settings_form_form.user_settings_form:
+  path: '/user/{user}/settings'
+  defaults:
+    _form: '\Drupal\user_settings_form\Form\UserSettingsForm'
+    _title: 'User Settings Form'
+  requirements:
+    _custom_access: '\Drupal\user_settings_form\Access\SettingsAccessCheck::checkAccess'
+    _user_is_logged_in: 'TRUE'
