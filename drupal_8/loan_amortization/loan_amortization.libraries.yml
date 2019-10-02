@@ -1,0 +1,6 @@
+loan_amortization:
+  version: 1.x
+  css:
+    theme:
+      css/loan_amortization.css: {}
+

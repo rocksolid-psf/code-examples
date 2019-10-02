@@ -1,0 +1,9 @@
+name: Loan Amortization
+description: 'Custom module for calculation the data'
+package: custom
+type: module
+core: 8.x
+configure: loan_amortization_values.admin_settings_form
+
+dependencies:
+  - rest

@@ -1,0 +1,3 @@
+services:
+  LoanSummaryService:
+    class: Drupal\loan_amortization\LoanSummaryService

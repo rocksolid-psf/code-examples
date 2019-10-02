@@ -1,0 +1,20 @@
+uuid: d107d25f-1e03-4e39-9eb5-f2d0e32759f1
+langcode: en
+status: true
+dependencies:
+  module:
+    - loan_amortization
+    - serialization
+    - user
+
+// todo: why we need this?
+id: loan_summary_resource
+plugin_id: loan_summary_resource
+granularity: resource
+configuration:
+  methods:
+    - POST
+  formats:
+    - json
+  authentication:
+    - cookie

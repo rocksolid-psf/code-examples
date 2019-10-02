@@ -1,0 +1,7 @@
+en:
+  loan_amount: '8000'
+  annual_rate: '8'
+  loan_period: '3'
+  annual_payments: '12'
+  start_of_loan: '2019-11-06'
+  extra_payment: '0'

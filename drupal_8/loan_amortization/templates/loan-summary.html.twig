@@ -1,0 +1,14 @@
+{{ attach_library('loan_amortization/loan_amortization') }}
+
+<h2>Loan Summary</h2>
+<div class="row">
+  <table>
+    {% for key, val in loan_summary %}
+      <tr>
+        <th class="col-sm-1">{{ val.label }}</th>
+        <td class="col-sm-1">{{ val.data }}</td>
+      </tr>
+    {% endfor %}
+  </table>
+</div>
+<br>

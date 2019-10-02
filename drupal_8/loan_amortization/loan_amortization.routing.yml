@@ -1,0 +1,24 @@
+loan_amortization.controller:
+  path: '/loan_amortization'
+  defaults:
+    _title: 'Loan Amortization'
+    _form: 'Drupal\loan_amortization\Form\LoanAmortizationForm'
+  requirements:
+    _permission: 'access content'
+
+loan_amortization_values.admin_settings_form:
+  path: '/admin/structure/loan_amortization/settings_values'
+  defaults:
+    _form: '\Drupal\loan_amortization\Form\LoanAmortizationValuesSettingsForm'
+    _title: 'Loan Amortization'
+  requirements:
+    _permission: 'administer site configuration'
+
+loan_amortization_labels.admin_settings_form:
+  path: '/admin/structure/loan_amortization/settings_labels'
+  defaults:
+    _form: '\Drupal\loan_amortization\Form\LoanAmortizationLabelsSettingsForm'
+    _title: 'Loan Amortization'
+  requirements:
+    _permission: 'administer site configuration'
+

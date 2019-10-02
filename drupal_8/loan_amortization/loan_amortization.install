@@ -1,0 +1,9 @@
+<?php
+
+const SETTINGS_LABELS = 'loan_amortization_labels.settings';
+const SETTINGS_VALUES = 'loan_amortization_values.settings';
+
+function loan_amortization_uninstall() {
+  Drupal::configFactory()->getEditable(SETTINGS_LABELS)->delete();
+  Drupal::configFactory()->getEditable(SETTINGS_VALUES)->delete();
+}

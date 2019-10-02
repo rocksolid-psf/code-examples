@@ -1,0 +1,32 @@
+{{ attach_library('loan_amortization/loan_amortization') }}
+
+<div class="row">
+  <table>
+    <tr>
+      <th class="col-sm-1">{{ payment_labels.pmt_no }}</th>
+      <th class="col-sm-1">{{ payment_labels.payment_date }}</th>
+      <th class="col-sm-1">{{ payment_labels.beginning_balance }}</th>
+      <th class="col-sm-1">{{ payment_labels.scheduled_payment }}</th>
+      <th class="col-sm-1">{{ payment_labels.extra_payment }}</th>
+      <th class="col-sm-1">{{ payment_labels.total_payment }}</th>
+      <th class="col-sm-1">{{ payment_labels.principal }}</th>
+      <th class="col-sm-1">{{ payment_labels.interest }}</th>
+      <th class="col-sm-1">{{ payment_labels.ending_balance }}</th>
+      <th class="col-sm-1">{{ payment_labels.cumulative_interest }}</th>
+    </tr>
+      {% for row in loan_payments %}
+        <tr>
+          <td class="col-sm-1">{{ row.pmt_no }}</td>
+          <td class="col-sm-1">{{ row.payment_date }}</td>
+          <td class="col-sm-1">{{ row.beginning_balance }}</td>
+          <td class="col-sm-1">{{ row.scheduled_payment }}</td>
+          <td class="col-sm-1">{{ row.extra_payment }}</td>
+          <td class="col-sm-1">{{ row.total_payment }}</td>
+          <td class="col-sm-1">{{ row.principal }}</td>
+          <td class="col-sm-1">{{ row.interest }}</td>
+          <td class="col-sm-1">{{ row.ending_balance }}</td>
+          <td class="col-sm-1">{{ row.cumulative_interest }}</td>
+        </tr>
+      {% endfor %}
+  </table>
+</div>
