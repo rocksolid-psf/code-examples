@@ -3,4 +3,3 @@ loan_amortization:
   css:
     theme:
       css/loan_amortization.css: {}
-
