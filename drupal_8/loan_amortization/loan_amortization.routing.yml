@@ -21,4 +21,3 @@ loan_amortization_labels.admin_settings_form:
     _title: 'Loan Amortization'
   requirements:
     _permission: 'administer site configuration'
-

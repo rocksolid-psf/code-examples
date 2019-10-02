@@ -6,11 +6,6 @@ use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * @file
- * Contains \Drupal\loan_amortization\Form\LoanAmortizationValuesSettingsForm.
- */
-
-/**
  * Configure example settings for this site.
  */
 class LoanAmortizationValuesSettingsForm extends ConfigFormBase {

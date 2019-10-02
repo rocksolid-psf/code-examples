@@ -1,10 +1,5 @@
 <?php
 
-/**
-* @file
-* Contains \Drupal\loan_amortization\Form\LoanAmortizationForm.
-*/
-
 namespace Drupal\loan_amortization\Form;
 
 use Drupal\Core\Ajax\AjaxResponse;
