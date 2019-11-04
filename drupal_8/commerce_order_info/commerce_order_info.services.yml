@@ -1,0 +1,5 @@
+services:
+  custom.route_subscriber:
+    class: Drupal\commerce_order_info\Routing\RouteSubscriber
+    tags:
+      - { name: event_subscriber }

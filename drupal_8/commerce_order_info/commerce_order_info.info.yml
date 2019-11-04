@@ -1,0 +1,7 @@
+name: Commerce Order Info
+type: module
+description: Provides custom checkout pane that display Checkout Order Summary on complete order page.
+core: 8.x
+package: Custom
+dependencies:
+  - commerce:commerce_order
