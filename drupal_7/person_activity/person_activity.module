@@ -1,0 +1,346 @@
+<?php
+
+/**
+ * @file
+ * Contains hooks for person_activity module.
+ */
+
+/**
+ * Implements hook_cron().
+ */
+function person_activity_cron() {
+  $query_acc = db_select('field_data_field_accountid', 'fda');
+  $query_acc->Join('field_data_field_saledate', 'fds', 'fda.entity_id = fds.entity_id');
+  $query_acc->fields('fda', ['field_accountid_uid', 'entity_id']);
+  $query_acc->addExpression('MAX(fds.field_saledate_value)', 'sale_date');
+  $query_acc->groupBy('fda.field_accountid_uid');
+  $accounts = $query_acc->execute()->fetchAll();
+  if (empty($accounts)) {
+    return;
+  }
+  foreach ($accounts as $account) {
+    if (strtotime($account->sale_date) < strtotime('-90 days')) {
+      $query_prog = db_select('field_data_field_accountid', 'fda');
+      $query_prog->fields('fda', ['entity_id']);
+      $query_prog->condition('bundle', 'customer_program');
+      $query_prog->condition('field_accountid_uid', $account->field_accountid_uid);
+      $programs = $query_prog->execute()->fetchAll();
+      foreach ($programs as $program) {
+        if (!empty($program)) {
+          $query_dormant = db_select('field_data_field_dormant', 'fdd');
+          $query_dormant->fields('fdd', ['field_dormant_value']);
+          $query_dormant->condition('fdd.entity_id', $program->entity_id, '=');
+          $dormant = $query_dormant->execute()->fetchField();
+          if ($dormant == '1' && !variable_get('dormant_update')) {
+            field_dormant_update($program->entity_id, 1);
+          }
+          elseif ($dormant == '0') {
+            field_dormant_update($program->entity_id, 1);
+          }
+        }
+      }
+    }
+  }
+  variable_set('dormant_update', TRUE);
+}
+
+/**
+ * Updates field_dormant for customer program.
+ *
+ * @param $nid
+ *   The node id.
+ * @param integer $value
+ *   The field value.
+ */
+function field_dormant_update($nid, $value) {
+  $node = node_load($nid);
+  $node->field_dormant[LANGUAGE_NONE][0] = [
+    'value' => $value,
+  ];
+  node_save($node);
+}
+
+/**
+ * Implements hook_node_insert().
+ */
+function person_activity_node_insert($node) {
+  if ($node->type == 'sales') {
+    $authorization = $node->field_authcode["und"][0]["value"];
+    
+    // Verification for user authorization.
+    if ($authorization) {
+      $accountid_uid = $node->field_accountid["und"][0]["uid"];
+      
+      // Get entity_id for a specific user.
+      $customer_program_ids = db_select('field_data_field_accountid', 'fda')
+        ->fields('fda', ['bundle', 'entity_id'])
+        ->condition('bundle', 'customer_program')
+        ->condition('field_accountid_uid', $accountid_uid, '=')
+        ->execute();
+      
+      if (!empty($customer_program_ids)) {
+        
+        // Current date of sale "Days Purchased".
+        $day_purchased = $node->field_dayspurchased["und"][0]['value'];
+        // The current date of sale.
+        $sale_date = $node->field_saledate["und"][0]["value"];
+        
+        foreach ($customer_program_ids as $row_uid) {
+          // Getting customer program id.
+          $customer_program_id = $row_uid->entity_id;
+          // Current date of the "Program Expiration Date" field.
+          $query_expiration_date = db_select('field_data_field_expiration', 'fdf')
+            ->fields('fdf', ['field_expiration_value'])
+            ->condition('fdf.entity_id', $customer_program_id, '=')
+            ->execute()
+            ->fetchAll();
+          // Check if expiration_date field is null.
+          if (if_res_empty($query_expiration_date)) {
+            // expiration = saleDate + numberOfDaysSold;
+            $new_expiration_date = format_date(strtotime(+$day_purchased . 'days', strtotime($sale_date)), 'custom', 'Y-m-d H:i:s', 'UTC');
+            // Program Expiration Date status update.
+            exp_date_upd($customer_program_id, $new_expiration_date);
+          }
+          else {
+            if (!is_array($query_expiration_date)) {
+              $query_expiration_date = [$query_expiration_date];
+            }
+            foreach ($query_expiration_date as $expiration_value) {
+              // Getting "Program Expiration Date" from db result object.
+              $expiration_date = $expiration_value->field_expiration_value;
+              if (strtotime($sale_date) > strtotime($expiration_date)) {
+                // expirationDateOnDrupal = saleDate + daysPurchased.
+                $new_expiration_date = format_date(strtotime(+$day_purchased . 'days', strtotime($sale_date)), 'custom', 'Y-m-d H:i:s', 'UTC');
+                // Program Expiration Date status update.
+                exp_date_upd($customer_program_id, $new_expiration_date);
+              }
+              else {
+                // expirationDateOnDrupal = expirationDateOnDrupal + daysPurchased.
+                $new_expiration_date = format_date(strtotime(+$day_purchased . 'days', strtotime($expiration_date)), 'custom', 'Y-m-d H:i:s', 'UTC');
+                // Program Expiration Date status update.
+                exp_date_upd($customer_program_id, $new_expiration_date);
+              }
+            }
+          }
+        }
+      }
+    }
+    drupal_flush_all_caches();
+  }
+}
+
+/**
+ * Updates expiration date field.
+ *
+ * @param $entity_id
+ *   The node id.
+ * @param $date
+ *   The new expiration date.
+ */
+function exp_date_upd($entity_id, $date) {
+  $node = node_load($entity_id);
+  $node->revision = TRUE;
+  $node->is_current = TRUE;
+  $node->status = 1;
+  $node->field_expiration[LANGUAGE_NONE][0] = [
+    'value' => $date,
+    'timezone' => 'UTC',
+    'timezone_db' => 'UTC',
+  ];
+  $node->field_dormant[LANGUAGE_NONE][0] = [
+    'value' => 0,
+  ];
+  $node->revision_moderation = FALSE;
+  node_save($node);
+}
+
+/**
+ * Checking if db query result is empty.
+ *
+ * @param $result
+ *
+ * @return bool
+ */
+function if_res_empty($result) {
+  $contents = [];
+  foreach ($result as $r) {
+    $contents[] = $r->field_expiration_value;
+  }
+  if (count($contents)) {
+    return FALSE;
+  }
+  else {
+    return TRUE;
+  }
+}
+
+/**
+ * Implements hook_node_presave().
+ */
+function person_activity_node_presave($node) {
+  if ($node->type == 'customer_program') {
+    $changed = $node->changed;
+    $new_day_rate = $node->field_rateday["und"][0]["value"];
+    $original_day_rate = $node->original->field_rateday;
+    
+    if (!empty($original_day_rate) && $new_day_rate != $original_day_rate["und"][0]["value"]) {
+      $original_day_rate = $original_day_rate["und"][0]["value"];
+      $field_expiration = $node->original->field_expiration;
+      
+      if (!empty($field_expiration)) {
+        $expiration = $field_expiration["und"][0]["value"];
+        $timezone = $field_expiration["und"][0]['timezone'];
+        
+        if (strtotime($expiration) > $changed) {
+          // Get current hours left.
+          $current_h_left = get_hours_left($node->changed, to_time($expiration, $timezone));
+          // Get rate per hour.
+          $h_rate = get_rate_per_hour($original_day_rate);
+          // Get current credits left.
+          $credit_left = $current_h_left * $h_rate;
+          // Get a new rate per hour.
+          $new_h_rate = get_rate_per_hour($new_day_rate);
+          // Calculate a new credits.
+          $new_h_left = $credit_left / $new_h_rate;
+          // Set a new expiration date.
+          $new_h_left_str = '+' . round($new_h_left) . ' hours';
+          $new_exp_date = format_date(strtotime($new_h_left_str, $changed), 'custom', 'Y-m-d H:i:s', $timezone);
+          $node->field_expiration[LANGUAGE_NONE][0] = [
+            'value' => $new_exp_date,
+            'timezone' => 'UTC',
+            'timezone_db' => 'UTC',
+          ];
+          if ($node->original->field_dormant["und"][0]["value"] == 1) {
+            $node->field_dormant[LANGUAGE_NONE][0] = [
+              'value' => 0,
+            ];
+          }
+        }
+        
+      }
+    }
+  }
+}
+
+/**
+ * Provides a difference in hours between two dates.
+ *
+ * @param $start
+ *   The timestamp.
+ * @param $end
+ *  The timestamp.
+ *
+ * @return float
+ */
+function get_hours_left($start, $end) {
+  $date_diff = $end - $start;
+  $hours = $date_diff / 3600;
+  
+  return round($hours);
+}
+
+/**
+ * Calculates rate per hour.
+ *
+ * @param $rate
+ *   The Day Rate field.
+ *
+ * @return float|int
+ */
+function get_rate_per_hour($rate){
+  return $rate / 24;
+}
+
+/**
+ * Converts date to timestamp.
+ *
+ * @param $date
+ *  The human-readable date.
+ * @param $timezone
+ *  The site timezone.
+ *
+ * @return string
+ *   The timestamp.
+ */
+function to_time($date, $timezone) {
+  $object = new DateTime($date, new DateTimeZone($timezone));
+  $timestamp = $object->format('U');
+  
+  return $timestamp;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function person_activity_form_sales_node_form_alter(&$form, &$form_state) {
+  $node = $form_state['node'];
+  if (!isset($node->nid) || isset($node->is_new)) {
+    $form['#validate'][] = 'sale_activity_transaction_form_validate';
+  }
+}
+
+/**
+ * Custom validation handler for content type sale.
+ *
+ * @param $form
+ * @param $form_state
+ */
+function person_activity_transaction_form_validate($form, &$form_state) {
+  $transactionid = getTransactionId($form_state['values']['field_transactionid']);
+  if (checkTransactionId($transactionid)) {
+    form_set_error('field_transactionid', t('Transaction ID already exists in sale - ' . checkTransactionId($transactionid)));
+  }
+}
+
+/**
+ * Check transaction id value in DB.
+ *
+ * @param $tid
+ *
+ * @return integer|bool
+ */
+function checkTransactionId($tid) {
+  $is_exist = db_select('field_data_field_transactionid', 'fdt')
+    ->condition('fdt.field_transactionid_value', $tid, '=')
+    ->fields('fdt', ['entity_id'])
+    ->execute();
+  if ($is_exist->rowCount()) {
+    return $is_exist->fetchField();
+  }
+  else {
+    return FALSE;
+  }
+}
+
+/**
+ * Provides transaction id value in DB.
+ *
+ * @param array $tid
+ *
+ * @return string
+ */
+function getTransactionId($tid) {
+  $id = reset($tid);
+  return $id[0]['value'];
+}
+
+/**
+ * Implements hook_rest_server_execute_errors_alter().
+ */
+function person_activity_rest_server_execute_errors_alter(&$error_alter_array, $controller, $arguments) {
+  // Overwrites the HTTP error when getting a transaction ID error for sales.
+  if ($controller['callback'] == '_node_resource_create' && $error_alter_array['code'] == 406) {
+    if (array_key_exists('form_errors', $error_alter_array['body_data']) && array_key_exists('field_transactionid', $error_alter_array['body_data']['form_errors'])) {
+      $string = $error_alter_array['body_data']['form_errors']['field_transactionid'];
+      if (substr($string, 0, 29 ) === 'Transaction ID already exists') {
+        $nid = explode('- ', $string);
+        $nid = $nid[1];
+        $error_alter_array['header_message'] = '200, Sale with this transaction ID already exists';
+        $error_alter_array['body_data'] = [
+          'nid' => $nid,
+          'uri' => url('smappapi/node/'. $nid, ['absolute' => TRUE]),
+        ];
+      }
+    }
+  }
+}

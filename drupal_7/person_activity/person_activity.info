@@ -1,0 +1,4 @@
+name = Person Activity
+description = 'Keeps track of user Person activity'
+core = 7.x
+version = "7.x-1.13"
