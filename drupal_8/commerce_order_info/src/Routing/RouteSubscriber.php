@@ -19,7 +19,7 @@ class RouteSubscriber extends RouteSubscriberBase {
       $collection->get('commerce_payment.checkout.return'),
     ];
     foreach ($routes as $route) {
-      $route->setRequirement('_custom_access', '\Drupal\commerce_order_info\Controller\CustomCheckoutController::orderCheckAccess');
+      $route->setRequirement('_custom_access', '\Drupal\commerce_order_info\Access\CustomCheckoutAccess::access');
       $route->setOption('no_cache', TRUE);
     }
   }
