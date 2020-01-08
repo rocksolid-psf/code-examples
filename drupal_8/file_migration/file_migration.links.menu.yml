@@ -1,0 +1,5 @@
+file_migration.batch:
+  route_name: file_migration.batch
+  title: 'Product File Migration'
+  description: 'Updates files for products.'
+  parent: system.admin_config_content

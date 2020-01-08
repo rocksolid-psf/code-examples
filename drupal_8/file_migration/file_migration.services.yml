@@ -1,0 +1,8 @@
+services:
+  file_migration.migration_db:
+    class: Drupal\Core\Database\Connection
+    factory: 'Drupal\Core\Database\Database::getConnection'
+    arguments: ['default','migrate']
+  file_migration.connection:
+    class: Drupal\file_migration\OldStore
+    arguments: ['@file_migration.migration_db', '@entity_type.manager']

@@ -1,0 +1,5 @@
+name: 'D7 File Migration'
+description: 'Provides products file migration batch.'
+package: Custom
+type: module
+core: 8.x

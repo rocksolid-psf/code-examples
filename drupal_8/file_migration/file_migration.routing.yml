@@ -1,0 +1,7 @@
+file_migration.batch:
+  path: '/admin/config/content/file-migration'
+  defaults:
+    _title: 'Product File Migration'
+    _form: 'Drupal\file_migration\Form\FileMigrationForm'
+  requirements:
+    _permission: 'administer site configuration'
