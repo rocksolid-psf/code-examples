@@ -1,0 +1,4 @@
+contact_us.settings:
+  route_name: contact_us.settings
+  title: Contact us channel selector configurations
+  base_route: contact_us.settings

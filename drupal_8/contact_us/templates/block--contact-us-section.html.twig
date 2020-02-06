@@ -1,0 +1,18 @@
+<div class="container-fluid bg-gray--100">
+  <div class="row align-items-center col-12 col-lg-12 row m-0 p-4">
+    <div class="col-lg-8 mb-3 mb-lg-0 p-0 px-lg-8">
+      <h4 class="h4 vui--font-secondary fs-4 mb-lg-0 .card-text">{{ content.text_associate.value|raw }}</h4>
+    </div>
+    <div class="col-lg-4 d-flex flex-column-reverse flex-wrap justify-content-start align-content-start align-content-lg-center px-lg-8">
+      {% if open_window and content.button_text %}
+        <button type="button" class="contact-us-button btn btn-md btn-outline-dark fs-3" onclick="{{ open_window|raw }}" id="contact_us_button">
+          {{ content.button_text }}
+        </button>
+      {% elseif content.button_text %}
+        <button type="button" class="contact-us-button btn btn-md btn-outline-dark fs-3" id="contact_us_button">
+          {{ content.button_text }}
+        </button>
+      {% endif %}
+    </div>
+  </div>
+</div>

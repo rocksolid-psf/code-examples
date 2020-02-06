@@ -1,0 +1,25 @@
+msgid ""
+msgstr ""
+
+msgid "Contact us section block"
+msgstr "Contactez-nous bloc de section"
+
+msgid "Contact us channel selector configuration"
+msgstr "Contactez-nous configuration du sélecteur de canal"
+
+msgid ""
+"Administer Contact us channel selector configuration"
+msgstr ""
+"Administrer Contactez-nous configuration du sélecteur de canal"
+
+msgid "Contact us settings"
+msgstr "Paramètres Contactez-nous"
+
+msgid "Contact us channel selector configuration form."
+msgstr "Contactez-nous formulaire de configuration du sélecteur de canal."
+
+msgid "Contact us channel selector configurations"
+msgstr "Contactez-nous configurations du sélecteur de canal"
+
+msgid "Open channel selector window command"
+msgstr "Commande d'ouverture de fenêtre de sélection de canal"

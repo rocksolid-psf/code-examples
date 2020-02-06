@@ -1,0 +1,22 @@
+<?php
+
+/**
+ * @file
+ * Contact us custom module.
+ */
+
+/**
+ * Implements hook_theme().
+ */
+function contact_us_theme($existing, $type, $theme, $path) {
+  return [
+    // Theming for Shop Contact us section block.
+    'contact_us_section_block' => [
+      'variables' => [
+        'content' => NULL,
+        'open_window' => NULL,
+      ],
+      'template' => 'block--contact-us-section',
+    ],
+  ];
+}

@@ -1,0 +1,18 @@
+contact_us.settings:
+  type: config_object
+  label: 'Contact us channel selector settings'
+  mapping:
+    open_window:
+      label: 'Open channel selector window command'
+      type: text
+
+block.settings.contact_us_section_block:
+  type: block_settings
+  label: 'Contact us section block'
+  mapping:
+    text_associate:
+      type: text_format
+      label: 'Text associate'
+    button_text:
+      type: label
+      label: 'Button text'

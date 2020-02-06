@@ -1,0 +1,4 @@
+administer contact us configuration:
+  title: 'Contact us channel selector configuration form.'
+  description: 'Contact us channel selector configuration form.'
+  restrict access: TRUE

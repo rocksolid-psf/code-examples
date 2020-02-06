@@ -1,0 +1,8 @@
+contact_us.settings:
+  path: '/admin/config/example/contact-us-settings'
+  defaults:
+    _form: '\Drupal\contact_us\Form\ChannelSelectorConfigForm'
+    _title: 'Contact us channel selector configuration'
+  requirements:
+    _permission: 'administer contact us configuration'
+    parent: example_core.admin_config_example

@@ -1,0 +1,5 @@
+contact_us.settings:
+  title: 'Contact us channel selector configurations'
+  description: 'Administer Contact us channel selector configuration'
+  parent: example_core.admin_config_example
+  route_name: 'contact_us.settings'

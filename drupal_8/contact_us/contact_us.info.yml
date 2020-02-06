@@ -1,0 +1,9 @@
+name: Contact us Module
+description: Module to provide contact us blocks.
+package: Custom
+type: module
+core: 8.x
+dependencies:
+  - example_core
+'interface translation project': contact_us
+'interface translation server pattern': modules/custom/contact_us/translations/%language.po
