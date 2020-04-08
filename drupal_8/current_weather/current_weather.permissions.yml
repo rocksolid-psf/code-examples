@@ -1,0 +1,5 @@
+configure current weather:
+  title: 'Configure API endpoint, API key, default city name and default country code'
+
+see current weather:
+  title: 'See current weather'

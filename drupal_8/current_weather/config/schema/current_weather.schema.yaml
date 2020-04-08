@@ -1,0 +1,16 @@
+current_weather.config:
+  type: config_object
+  label: 'Current weather config'
+  mapping:
+    endpoint:
+      type: string
+      label: 'Endpoint'
+    api:
+      type: string
+      label: 'Current weather API key'
+    default_city_name:
+      type: string
+      label: 'Default city name'
+    default_country_code:
+      type: string
+      label: 'Default country code'

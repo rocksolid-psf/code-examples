@@ -1,0 +1,6 @@
+name: Current weather
+type: module
+description: 'Current weather module'
+package: Custom
+configure: current_weather.config
+core: 8.x

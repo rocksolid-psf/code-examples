@@ -1,0 +1,4 @@
+endpoint: api.openweathermap.org/
+api: be306854c8951ab7c36943603da82b4d
+default_city_name: Washington
+default_country_code: US

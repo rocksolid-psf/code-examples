@@ -1,0 +1,24 @@
+<div class="weather">
+  {% if rows.status is not null %}
+    <div class="404">Weather for your parameter not found</div>
+  {% else %}
+    <div class="city_name">
+      City: {{ rows.name }}, {{ rows.sys.country }}
+    </div>
+    <div class="weather_description">
+      Weather description: Today
+      {% for weather in rows.weather %}
+        {{ weather.description }}
+      {% endfor %}
+    </div>
+    <div class="temp">
+      Temperature: {{ rows.main.temp }} °С
+    </div>
+    <div class="max-temp">
+      Maximum temperature today: {{ rows.main.temp_max }} °С
+    </div>
+    <div class="min-temp">
+      Minimum temperature today: {{ rows.main.temp_min }} °С
+    </div>
+  {% endif %}
+</div>

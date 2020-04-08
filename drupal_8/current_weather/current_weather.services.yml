@@ -1,0 +1,4 @@
+services:
+  current_weather.api:
+    class: Drupal\current_weather\Services\CurrentWeatherApi
+    arguments: ['@http_client', '@logger.factory', '@config.factory']

@@ -1,0 +1,29 @@
+<?php
+
+/**
+ * @file
+ * Module current_weather.
+ */
+
+/**
+ * Implements hook_theme().
+ */
+function current_weather_theme() {
+  return [
+    'weather_template' => [
+      'variables' => [
+        'rows' => NULL,
+      ],
+    ],
+    'weather_city_template' => [
+      'variables' => [
+        'rows' => NULL,
+      ],
+    ],
+    'weather_city_country_template' => [
+      'variables' => [
+        'rows' => NULL,
+      ],
+    ],
+  ];
+}

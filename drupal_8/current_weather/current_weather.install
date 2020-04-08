@@ -1,0 +1,30 @@
+<?php
+
+/**
+ * @file
+ * Install for module current_weather.
+ */
+
+use Drupal\user\Entity\Role;
+use Drupal\user\RoleInterface;
+
+/**
+ * Implements hook_install().
+ */
+function current_weather_install() {
+  $anonymous = Role::load(RoleInterface::ANONYMOUS_ID);
+  $anonymous->grantPermission('see current weather')->save();
+  $authenticated = Role::load(RoleInterface::AUTHENTICATED_ID);
+  $authenticated->grantPermission('see current weather')->save();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function current_weather_uninstall() {
+  $anonymous = Role::load(RoleInterface::ANONYMOUS_ID);
+  $anonymous->revokePermission('see current weather')->save();
+  $authenticated = Role::load(RoleInterface::AUTHENTICATED_ID);
+  $authenticated->revokePermission('see current weather')->save();
+  \Drupal::configFactory()->getEditable('current_weather.config')->delete();
+}

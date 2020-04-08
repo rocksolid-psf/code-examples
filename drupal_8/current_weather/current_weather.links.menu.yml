@@ -1,0 +1,11 @@
+current_weather.config:
+  title: 'Current weather configuration'
+  description: 'Configuration form for current_weather module'
+  parent: system.admin_config_services
+  route_name: current_weather.config
+
+current_weather.layout:
+  title: 'Weather'
+  weight: -10
+  route_name: current_weather.layout
+  menu_name: main
