@@ -1,0 +1,5 @@
+name: 'Node Parent Language'
+description: 'Provides batch for change node parent language.'
+package: Custom
+type: module
+core: 8.x

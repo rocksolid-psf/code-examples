@@ -1,0 +1,7 @@
+parent_language.batch:
+  path: '/admin/config/content/parent-language'
+  defaults:
+    _title: 'Node Parent Language'
+    _form: 'Drupal\parent_language\Form\ParentLanguageForm'
+  requirements:
+    _permission: 'administer site configuration'
